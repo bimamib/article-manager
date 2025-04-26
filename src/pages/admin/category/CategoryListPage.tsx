@@ -53,14 +53,27 @@ const CategoryListPage: React.FC = () => {
           currentPage,
           searchQuery
         );
-        setCategories(response.data);
-        setPagination(response.pagination);
+        setCategories(response.data || []);
+        setPagination(response.pagination || {
+          current_page: 1,
+          total_pages: 1,
+          total: 0,
+          per_page: 10,
+        });
       } catch (error) {
         console.error("Error fetching categories:", error);
         toast({
           title: "Error",
           description: "Failed to fetch categories",
           variant: "destructive",
+        });
+        // Set default values on error
+        setCategories([]);
+        setPagination({
+          current_page: 1,
+          total_pages: 1,
+          total: 0,
+          per_page: 10,
         });
       } finally {
         setIsLoading(false);
@@ -82,14 +95,17 @@ const CategoryListPage: React.FC = () => {
   const handleDeleteCategory = async (id: string) => {
     try {
       await categoryService.deleteCategory(id);
-      setCategories(categories.filter(category => category.id !== id));
+      // Only filter categories if they exist
+      if (categories && categories.length > 0) {
+        setCategories(categories.filter(category => category.id !== id));
+      }
       toast({
         title: "Success",
         description: "Category deleted successfully",
       });
       
       // Reload categories if the current page might be empty after deletion
-      if (categories.length === 1 && currentPage > 1) {
+      if (categories && categories.length === 1 && currentPage > 1) {
         setCurrentPage(currentPage - 1);
       }
     } catch (error) {
@@ -129,7 +145,7 @@ const CategoryListPage: React.FC = () => {
       
       {isLoading ? (
         <Loading />
-      ) : categories.length === 0 ? (
+      ) : !categories || categories.length === 0 ? (
         <Empty message="No categories found" />
       ) : (
         <div className="bg-card border rounded-md">

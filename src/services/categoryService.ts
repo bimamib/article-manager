@@ -58,8 +58,9 @@ export const categoryService = {
   
   async getAllCategories(): Promise<Category[]> {
     try {
-      const response = await api.get<ApiResponse<Category[]>>("/categories/all");
-      return response.data.data;
+      // Changed from '/categories/all' to '/categories' with a parameter to match API endpoint
+      const response = await api.get<ApiResponse<PaginatedResponse<Category>>>("/categories?per_page=100");
+      return response.data.data.data;
     } catch (error) {
       console.error("Error fetching all categories:", error);
       
