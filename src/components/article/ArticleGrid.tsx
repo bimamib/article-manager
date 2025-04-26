@@ -18,7 +18,8 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
     return <Loading />;
   }
 
-  if (articles.length === 0) {
+  // Handle the case when articles is undefined
+  if (!articles || articles.length === 0) {
     return <Empty message="Tidak ada artikel yang ditemukan" />;
   }
 

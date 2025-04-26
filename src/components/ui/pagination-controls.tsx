@@ -15,6 +15,11 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
   onPageChange,
   className,
 }) => {
+  // Return null if pagination is undefined or incomplete
+  if (!pagination || pagination.total_pages === undefined || pagination.current_page === undefined) {
+    return null;
+  }
+
   const { current_page, total_pages } = pagination;
 
   const handlePageChange = (page: number) => {

@@ -10,6 +10,7 @@ import { Article, PaginatedResponse } from "@/types";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const ArticlesPage: React.FC = () => {
+  // Initialize articles as an empty array
   const [articles, setArticles] = useState<Article[]>([]);
   const [pagination, setPagination] = useState({
     current_page: 1,
@@ -32,10 +33,24 @@ const ArticlesPage: React.FC = () => {
           searchQuery,
           selectedCategory
         );
-        setArticles(response.data);
-        setPagination(response.pagination);
+        // Ensure we have a valid array of articles and pagination data
+        setArticles(response.data || []);
+        setPagination(response.pagination || {
+          current_page: 1,
+          total_pages: 1,
+          total: 0,
+          per_page: 9,
+        });
       } catch (error) {
         console.error("Error fetching articles:", error);
+        // Set empty state on error
+        setArticles([]);
+        setPagination({
+          current_page: 1,
+          total_pages: 1,
+          total: 0,
+          per_page: 9,
+        });
       } finally {
         setIsLoading(false);
       }
