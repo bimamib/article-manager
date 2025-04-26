@@ -58,14 +58,27 @@ const ArticleListPage: React.FC = () => {
           searchQuery,
           selectedCategory
         );
-        setArticles(response.data);
-        setPagination(response.pagination);
+        setArticles(response.data || []);
+        setPagination(response.pagination || {
+          current_page: 1,
+          total_pages: 1,
+          total: 0,
+          per_page: 10,
+        });
       } catch (error) {
         console.error("Error fetching articles:", error);
         toast({
           title: "Error",
           description: "Failed to fetch articles",
           variant: "destructive",
+        });
+        // Set default values on error
+        setArticles([]);
+        setPagination({
+          current_page: 1,
+          total_pages: 1,
+          total: 0,
+          per_page: 10,
         });
       } finally {
         setIsLoading(false);
@@ -92,14 +105,17 @@ const ArticleListPage: React.FC = () => {
   const handleDeleteArticle = async (id: string) => {
     try {
       await articleService.deleteArticle(id);
-      setArticles(articles.filter(article => article.id !== id));
+      // Only filter articles if they exist
+      if (articles && articles.length > 0) {
+        setArticles(articles.filter(article => article.id !== id));
+      }
       toast({
         title: "Success",
         description: "Article deleted successfully",
       });
       
       // Reload articles if the current page might be empty after deletion
-      if (articles.length === 1 && currentPage > 1) {
+      if (articles && articles.length === 1 && currentPage > 1) {
         setCurrentPage(currentPage - 1);
       }
     } catch (error) {
@@ -145,7 +161,7 @@ const ArticleListPage: React.FC = () => {
         <div className="flex-1">
           {isLoading ? (
             <Loading />
-          ) : articles.length === 0 ? (
+          ) : !articles || articles.length === 0 ? (
             <Empty message="No articles found" />
           ) : (
             <div className="bg-card border rounded-md">
