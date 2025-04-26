@@ -22,6 +22,7 @@ const getLocalCategories = () => {
 const saveLocalCategories = (categories: Category[]) => {
   try {
     localStorage.setItem('localCategories', JSON.stringify(categories));
+    console.log("Categories saved to localStorage:", categories);
   } catch (error) {
     console.error("Error saving local categories:", error);
   }
@@ -41,6 +42,9 @@ export const categoryService = {
       return response.data.data;
     } catch (error) {
       console.error("Error fetching categories:", error);
+      
+      // Refresh local categories from localStorage to get latest data
+      localCategories = getLocalCategories();
       
       // Fallback with local storage data
       const filteredCategories = search 
@@ -72,6 +76,9 @@ export const categoryService = {
     } catch (error) {
       console.error("Error fetching category by ID:", error);
       
+      // Refresh local categories from localStorage to get latest data
+      localCategories = getLocalCategories();
+      
       // Fallback with local storage data
       const category = localCategories.find(category => category.id === id);
       if (!category) throw new Error("Category not found");
@@ -81,7 +88,12 @@ export const categoryService = {
   
   async getAllCategories(forceRefresh: boolean = false): Promise<Category[]> {
     try {
-      // Changed from '/categories/all' to '/categories' with a parameter to match API endpoint
+      // Always refresh from localStorage first to ensure we have the latest data
+      if (forceRefresh) {
+        localCategories = getLocalCategories();
+      }
+      
+      // Try API call
       const response = await api.get<ApiResponse<PaginatedResponse<Category>>>("/categories?per_page=100");
       const apiCategories = response.data.data.data;
       
@@ -95,7 +107,10 @@ export const categoryService = {
     } catch (error) {
       console.error("Error fetching all categories:", error);
       
-      // Fallback with local storage data
+      // Always refresh from localStorage to get latest data
+      localCategories = getLocalCategories();
+      console.log("Returning categories from localStorage:", localCategories);
+      
       return localCategories;
     }
   },
@@ -124,6 +139,7 @@ export const categoryService = {
       // Add new category to local array
       localCategories = [...localCategories, newCategory];
       saveLocalCategories(localCategories);
+      console.log("Created new category locally:", newCategory);
       
       return newCategory;
     }

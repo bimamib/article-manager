@@ -36,7 +36,8 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
         setIsLoading(true);
         // Force-refresh categories to ensure we get the latest data
         const fetchedCategories = await categoryService.getAllCategories(true);
-        setCategories(fetchedCategories || []);
+        console.log("CategoryFilter - Fetched categories:", fetchedCategories);
+        setCategories(Array.isArray(fetchedCategories) ? fetchedCategories : []);
       } catch (error) {
         console.error("Error fetching categories:", error);
         setCategories([]);
@@ -62,16 +63,24 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
       >
         All Categories
       </Button>
-      {Array.isArray(categories) && categories.map((category) => (
-        <Button
-          key={category.id}
-          variant={selectedCategory === category.id ? "default" : "ghost"}
-          className="w-full justify-start"
-          onClick={() => handleCategoryClick(category.id)}
-        >
-          {category.name}
-        </Button>
-      ))}
+      {Array.isArray(categories) && categories.length > 0 ? (
+        categories.map((category) => (
+          <Button
+            key={category.id}
+            variant={selectedCategory === category.id ? "default" : "ghost"}
+            className="w-full justify-start"
+            onClick={() => handleCategoryClick(category.id)}
+          >
+            {category.name}
+          </Button>
+        ))
+      ) : (
+        !isLoading && (
+          <div className="text-sm text-muted-foreground p-2 text-center">
+            No categories available
+          </div>
+        )
+      )}
     </div>
   );
 

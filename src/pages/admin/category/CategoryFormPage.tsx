@@ -73,15 +73,19 @@ const CategoryFormPage = () => {
     
     try {
       if (isEditMode) {
+        console.log("Updating category:", id, categoryData);
         await categoryService.updateCategory(id as string, categoryData);
         toast({ title: "Success", description: "Category updated successfully" });
       } else {
+        console.log("Creating category:", categoryData);
         await categoryService.createCategory(categoryData);
         toast({ title: "Success", description: "Category created successfully" });
       }
       
       // Force a refresh of the categories list in local storage
+      console.log("Force refreshing categories list");
       await categoryService.getAllCategories(true);
+      
       navigate("/admin/categories");
     } catch (error) {
       console.error("Error saving category:", error);

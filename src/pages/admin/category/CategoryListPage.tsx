@@ -26,7 +26,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { PlusCircle, Edit, Trash } from "lucide-react";
+import { PlusCircle, Edit, Trash, RefreshCw } from "lucide-react";
 import { Category, PaginatedResponse } from "@/types";
 import { categoryService } from "@/services/categoryService";
 import { useToast } from "@/components/ui/use-toast";
@@ -41,60 +41,69 @@ const CategoryListPage: React.FC = () => {
     per_page: 10,
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const { toast } = useToast();
   
+  const fetchCategories = async (refresh: boolean = false) => {
+    setIsLoading(true);
+    try {
+      // If refresh is true, force a fresh fetch from storage
+      if (refresh) {
+        await categoryService.getAllCategories(true);
+      }
+      
+      const response: PaginatedResponse<Category> = await categoryService.getCategories(
+        currentPage,
+        searchQuery
+      );
+      
+      console.log("Fetched categories:", response.data);
+      
+      if (Array.isArray(response.data)) {
+        setCategories(response.data);
+      } else {
+        console.error("Invalid categories data format:", response.data);
+        setCategories([]);
+      }
+      
+      setPagination(response.pagination || {
+        current_page: 1,
+        total_pages: 1,
+        total: 0,
+        per_page: 10,
+      });
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch categories",
+        variant: "destructive",
+      });
+      // Set default values on error
+      setCategories([]);
+      setPagination({
+        current_page: 1,
+        total_pages: 1,
+        total: 0,
+        per_page: 10,
+      });
+    } finally {
+      setIsLoading(false);
+      setRefreshing(false);
+    }
+  };
+  
   // Force a refresh when the component mounts
   useEffect(() => {
-    const refreshCategories = async () => {
-      try {
-        await categoryService.getAllCategories(true);
-      } catch (error) {
-        console.error("Error refreshing categories:", error);
-      }
-    };
-    
-    refreshCategories();
+    fetchCategories(true);
   }, []);
   
+  // Refetch when page or search changes
   useEffect(() => {
-    const fetchCategories = async () => {
-      setIsLoading(true);
-      try {
-        const response: PaginatedResponse<Category> = await categoryService.getCategories(
-          currentPage,
-          searchQuery
-        );
-        setCategories(response.data || []);
-        setPagination(response.pagination || {
-          current_page: 1,
-          total_pages: 1,
-          total: 0,
-          per_page: 10,
-        });
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch categories",
-          variant: "destructive",
-        });
-        // Set default values on error
-        setCategories([]);
-        setPagination({
-          current_page: 1,
-          total_pages: 1,
-          total: 0,
-          per_page: 10,
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchCategories();
-  }, [currentPage, searchQuery, toast]);
+    fetchCategories(false);
+  }, [currentPage, searchQuery]);
   
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -103,6 +112,11 @@ const CategoryListPage: React.FC = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+  
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchCategories(true);
   };
   
   const handleDeleteCategory = async (id: string) => {
@@ -120,6 +134,9 @@ const CategoryListPage: React.FC = () => {
       // Reload categories if the current page might be empty after deletion
       if (categories && categories.length === 1 && currentPage > 1) {
         setCurrentPage(currentPage - 1);
+      } else {
+        // Refresh the list to ensure we have the latest data
+        fetchCategories(true);
       }
     } catch (error) {
       console.error("Error deleting category:", error);
@@ -140,12 +157,22 @@ const CategoryListPage: React.FC = () => {
             Manage your article categories
           </p>
         </div>
-        <Button asChild>
-          <Link to="/admin/categories/create">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            New Category
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleRefresh}
+            disabled={refreshing}
+          >
+            <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Refreshing...' : 'Refresh'}
+          </Button>
+          <Button asChild>
+            <Link to="/admin/categories/create">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              New Category
+            </Link>
+          </Button>
+        </div>
       </div>
       
       <div className="mb-6">
@@ -158,7 +185,7 @@ const CategoryListPage: React.FC = () => {
       
       {isLoading ? (
         <Loading />
-      ) : !categories || categories.length === 0 ? (
+      ) : categories.length === 0 ? (
         <Empty message="No categories found" />
       ) : (
         <div className="bg-card border rounded-md">
