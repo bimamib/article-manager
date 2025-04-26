@@ -1,3 +1,4 @@
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
@@ -11,6 +12,7 @@ import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
 
 // User pages
+import Index from "@/pages/Index";
 import ArticlesPage from "@/pages/article/ArticlesPage";
 import ArticleDetailPage from "@/pages/article/ArticleDetailPage";
 
@@ -40,7 +42,7 @@ const App = () => {
           <AuthProvider>
             <Routes>
               {/* Public Routes */}
-              <Route path="/" element={<Navigate to="/articles" replace />} />
+              <Route path="/" element={<Index />} />
               <Route path="/auth/login" element={<LoginPage />} />
               <Route path="/auth/register" element={<RegisterPage />} />
               
@@ -115,9 +117,9 @@ const App = () => {
               {/* Not Found Route */}
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
+            <Toaster />
+            <Sonner />
           </AuthProvider>
-          <Toaster />
-          <Sonner />
         </Router>
       </TooltipProvider>
     </QueryClientProvider>

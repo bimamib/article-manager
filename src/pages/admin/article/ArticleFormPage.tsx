@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Layout } from "@/components/layout/Layout";
+import { Loading } from "@/components/ui/loading";
 import {
   Form,
   FormControl,
@@ -13,21 +13,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { 
-  Card,
-  CardContent, 
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -35,31 +20,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loading } from "@/components/ui/loading";
-import { useToast } from "@/components/ui/use-toast";
-import { articleSchema } from "@/lib/validations";
+import { ArrowLeft, Eye, Save } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 import { articleService } from "@/services/articleService";
 import { categoryService } from "@/services/categoryService";
-import { Category } from "@/types";
-import { ArrowLeft, Eye, Pencil, Save } from "lucide-react";
+import { ArticleFormData, Category } from "@/types";
 
-type ArticleFormValues = z.infer<typeof articleSchema>;
+const formSchema = z.object({
+  title: z.string().min(1, { message: "Title is required" }),
+  content: z.string().min(1, { message: "Content is required" }),
+  image: z.string().min(1, { message: "Image URL is required" }),
+  category_id: z.string().min(1, { message: "Category is required" }),
+});
 
-const ArticleFormPage: React.FC = () => {
+type FormValues = z.infer<typeof formSchema>;
+
+const ArticleFormPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [initialLoading, setInitialLoading] = useState<boolean>(!!id);
+  const isEditMode = !!id;
+  const [activeTab, setActiveTab] = useState<string>("editor");
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeTab, setActiveTab] = useState<string>("edit");
-  const isEditing = !!id;
-  
-  const form = useForm<ArticleFormValues>({
-    resolver: zodResolver(articleSchema),
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       content: "",
@@ -67,167 +58,177 @@ const ArticleFormPage: React.FC = () => {
       category_id: "",
     },
   });
-  
-  // Get form values for preview
-  const previewData = form.watch();
+
+  const { watch } = form;
+  const previewData = watch();
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        const fetchedCategories = await categoryService.getAllCategories();
-        setCategories(fetchedCategories);
+        const categoriesData = await categoryService.getCategories();
+        setCategories(categoriesData);
+
+        if (isEditMode) {
+          const article = await articleService.getArticle(id);
+          form.reset({
+            title: article.title,
+            content: article.content,
+            image: article.image,
+            category_id: article.category_id,
+          });
+        }
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error("Error fetching data:", error);
         toast({
           title: "Error",
-          description: "Failed to fetch categories",
+          description: "Failed to load necessary data",
           variant: "destructive",
         });
-      }
-    };
-
-    fetchCategories();
-  }, [toast]);
-
-  useEffect(() => {
-    const fetchArticle = async () => {
-      if (!id) return;
-      
-      try {
-        const article = await articleService.getArticleById(id);
-        form.reset({
-          title: article.title,
-          content: article.content,
-          image: article.image,
-          category_id: article.category_id,
-        });
-      } catch (error) {
-        console.error("Error fetching article:", error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch article",
-          variant: "destructive",
-        });
-        navigate("/admin/articles");
       } finally {
-        setInitialLoading(false);
+        setIsLoading(false);
       }
     };
 
-    if (id) {
-      fetchArticle();
-    } else {
-      setInitialLoading(false);
-    }
-  }, [id, form, navigate, toast]);
+    fetchData();
+  }, [id, isEditMode, form]);
 
-  const onSubmit = async (data: ArticleFormValues) => {
-    setIsLoading(true);
+  const onSubmit = async (values: FormValues) => {
+    setIsSaving(true);
+    
+    const articleData: ArticleFormData = {
+      title: values.title,
+      content: values.content,
+      image: values.image,
+      category_id: values.category_id
+    };
+    
     try {
-      if (isEditing && id) {
-        await articleService.updateArticle(id, data);
-        toast({
-          title: "Success",
-          description: "Article updated successfully",
-        });
+      if (isEditMode) {
+        await articleService.updateArticle(id, articleData);
+        toast({ title: "Success", description: "Article updated successfully" });
       } else {
-        await articleService.createArticle(data);
-        toast({
-          title: "Success",
-          description: "Article created successfully",
-        });
+        await articleService.createArticle(articleData);
+        toast({ title: "Success", description: "Article created successfully" });
       }
       navigate("/admin/articles");
     } catch (error) {
       console.error("Error saving article:", error);
       toast({
         title: "Error",
-        description: `Failed to ${isEditing ? "update" : "create"} article`,
+        description: `Failed to ${isEditMode ? "update" : "create"} article`,
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
-  if (initialLoading) {
-    return <Layout><Loading /></Layout>;
+  if (isLoading) {
+    return (
+      <Layout>
+        <Loading fullScreen />
+      </Layout>
+    );
   }
-
-  const selectedCategoryName = categories.find(
-    (category) => category.id === previewData.category_id
-  )?.name || "Uncategorized";
 
   return (
     <Layout>
-      <Button
-        variant="outline"
-        size="sm"
-        className="mb-6"
-        asChild
-      >
-        <Link to="/admin/articles">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Articles
-        </Link>
-      </Button>
-
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">
-          {isEditing ? "Edit" : "Create"} Article
-        </h1>
-        <p className="text-muted-foreground">
-          {isEditing ? "Update an existing article" : "Add a new article to your collection"}
-        </p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" onClick={() => navigate("/admin/articles")}>
+              <ArrowLeft className="h-4 w-4" />
+              Kembali
+            </Button>
+            <h1 className="text-3xl font-bold">
+              {isEditMode ? "Edit Artikel" : "Buat Artikel"}
+            </h1>
+          </div>
+          <Button
+            type="submit"
+            onClick={form.handleSubmit(onSubmit)}
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <>Menyimpan...</>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                Simpan
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full max-w-xs grid-cols-2 mb-6">
-          <TabsTrigger value="edit" className="flex items-center gap-2">
-            <Pencil className="h-4 w-4" />
-            Edit
-          </TabsTrigger>
-          <TabsTrigger value="preview" className="flex items-center gap-2">
-            <Eye className="h-4 w-4" />
-            Preview
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="edit">
-          <Card>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)}>
-                <CardContent className="space-y-6 pt-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Detail Artikel</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList>
+              <TabsTrigger value="editor">Editor</TabsTrigger>
+              <TabsTrigger value="preview">
+                Pratinjau
+                <Eye className="ml-2 h-4 w-4" />
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="editor">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <FormField
                     control={form.control}
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Title</FormLabel>
+                        <FormLabel>Judul</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="Enter article title" 
-                            {...field} 
-                          />
+                          <Input placeholder="Judul artikel" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
+
+                  <FormField
+                    control={form.control}
+                    name="content"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Konten</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Isi artikel" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="image"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>URL Gambar</FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://example.com/image.jpg" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <FormField
                     control={form.control}
                     name="category_id"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Category</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
+                        <FormLabel>Kategori</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select a category" />
+                              <SelectValue placeholder="Pilih kategori" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -242,118 +243,29 @@ const ArticleFormPage: React.FC = () => {
                       </FormItem>
                     )}
                   />
-                  
-                  <FormField
-                    control={form.control}
-                    name="image"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Image URL</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Enter image URL" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="content"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Content</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Write your article content here..."
-                            className="min-h-[300px] resize-none"
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-                
-                <CardFooter className="flex justify-end space-x-2 pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => navigate("/admin/articles")}
-                    disabled={isLoading}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={isLoading}>
-                    {isLoading ? (
-                      "Saving..."
-                    ) : (
-                      <>
-                        <Save className="mr-2 h-4 w-4" />
-                        {isEditing ? "Update" : "Save"}
-                      </>
-                    )}
-                  </Button>
-                </CardFooter>
-              </form>
-            </Form>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="preview">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl">Preview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {previewData.image && (
-                <div className="aspect-video mb-6 overflow-hidden rounded-lg">
-                  <img
-                    src={previewData.image}
-                    alt={previewData.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      // Set fallback image on error
-                      e.currentTarget.src = "https://picsum.photos/seed/article/800/450";
-                    }}
-                  />
-                </div>
-              )}
-              
-              <div className="mb-6">
-                <div className="flex items-start justify-between mb-2">
-                  <Badge variant="outline" className="bg-primary/10">
-                    {selectedCategoryName}
-                  </Badge>
-                  <div className="text-xs text-muted-foreground">
-                    {new Date().toLocaleDateString()}
-                  </div>
-                </div>
-                
-                <h1 className="text-3xl font-bold mb-4">
-                  {previewData.title || "Article Title"}
-                </h1>
-              </div>
-              
-              <ScrollArea className="h-[400px] rounded-md border p-4">
-                <div className="article-content">
-                  {previewData.content ? (
-                    previewData.content.split('\n').map((paragraph, index) => (
-                      <p key={index} className="mb-4">{paragraph}</p>
-                    ))
-                  ) : (
-                    <p className="text-muted-foreground italic">Article content will appear here...</p>
+                </form>
+              </Form>
+            </TabsContent>
+            <TabsContent value="preview">
+              <Card className="border">
+                <CardHeader>
+                  <CardTitle>{previewData.title || "Judul Artikel"}</CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-4">
+                  {previewData.image && (
+                    <img
+                      src={previewData.image}
+                      alt="Article Preview"
+                      className="w-full h-auto rounded-md"
+                    />
                   )}
-                </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                  <p>{previewData.content || "Isi Artikel"}</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </Layout>
   );
 };

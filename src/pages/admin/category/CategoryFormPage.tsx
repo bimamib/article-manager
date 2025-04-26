@@ -1,39 +1,41 @@
-
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Layout } from "@/components/layout/Layout";
-import {
+import { 
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage, 
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Loading } from "@/components/ui/loading";
-import { useToast } from "@/components/ui/use-toast";
-import { categorySchema } from "@/lib/validations";
-import { categoryService } from "@/services/categoryService";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Save } from "lucide-react";
+import { categoryService } from "@/services/categoryService";
+import { toast } from "@/components/ui/use-toast";
+import { Loading } from "@/components/ui/loading";
+import { CategoryFormData } from "@/types";
 
-type CategoryFormValues = z.infer<typeof categorySchema>;
+const formSchema = z.object({
+  name: z.string().min(1, { message: "Name is required" }),
+});
 
-const CategoryFormPage: React.FC = () => {
+type FormValues = z.infer<typeof formSchema>;
+
+const CategoryFormPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [initialLoading, setInitialLoading] = useState<boolean>(!!id);
-  const isEditing = !!id;
-  
-  const form = useForm<CategoryFormValues>({
-    resolver: zodResolver(categorySchema),
+  const isEditMode = !!id;
+  const [isLoading, setIsLoading] = useState(isEditMode);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
     },
@@ -41,130 +43,106 @@ const CategoryFormPage: React.FC = () => {
 
   useEffect(() => {
     const fetchCategory = async () => {
-      if (!id) return;
+      if (!isEditMode) return;
       
       try {
-        const category = await categoryService.getCategoryById(id);
+        const category = await categoryService.getCategory(id);
         form.reset({ name: category.name });
       } catch (error) {
         console.error("Error fetching category:", error);
         toast({
           title: "Error",
-          description: "Failed to fetch category",
+          description: "Failed to load category data",
           variant: "destructive",
         });
         navigate("/admin/categories");
       } finally {
-        setInitialLoading(false);
+        setIsLoading(false);
       }
     };
 
-    if (id) {
-      fetchCategory();
-    }
-  }, [id, form, navigate, toast]);
+    fetchCategory();
+  }, [id, isEditMode, navigate, form]);
 
-  const onSubmit = async (data: CategoryFormValues) => {
-    setIsLoading(true);
+  const onSubmit = async (values: FormValues) => {
+    setIsSaving(true);
+    const categoryData: CategoryFormData = {
+      name: values.name
+    };
+    
     try {
-      if (isEditing && id) {
-        await categoryService.updateCategory(id, data);
-        toast({
-          title: "Success",
-          description: "Category updated successfully",
-        });
+      if (isEditMode) {
+        await categoryService.updateCategory(id, categoryData);
+        toast({ title: "Success", description: "Category updated successfully" });
       } else {
-        await categoryService.createCategory(data);
-        toast({
-          title: "Success",
-          description: "Category created successfully",
-        });
+        await categoryService.createCategory(categoryData);
+        toast({ title: "Success", description: "Category created successfully" });
       }
       navigate("/admin/categories");
     } catch (error) {
       console.error("Error saving category:", error);
       toast({
         title: "Error",
-        description: `Failed to ${isEditing ? "update" : "create"} category`,
+        description: `Failed to ${isEditMode ? "update" : "create"} category`,
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
-  if (initialLoading) {
-    return <Layout><Loading /></Layout>;
-  }
-
   return (
     <Layout>
-      <Button
-        variant="outline"
-        size="sm"
-        className="mb-6"
-        asChild
-      >
-        <Link to="/admin/categories">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Categories
-        </Link>
-      </Button>
-
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">
-          {isEditing ? "Edit" : "Create"} Category
-        </h1>
-        <p className="text-muted-foreground">
-          {isEditing ? "Update an existing category" : "Add a new category to your articles"}
-        </p>
-      </div>
-
-      <Card className="max-w-2xl mx-auto">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <CardContent className="pt-6">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category Name</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Enter category name" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+      {isLoading ? (
+        <Loading fullScreen />
+      ) : (
+        <div className="container mx-auto py-10">
+          <Card>
+            <CardHeader>
+              <CardTitle>{isEditMode ? "Edit Category" : "Create Category"}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Category Name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex justify-end gap-4">
+                    <Button variant="ghost" asChild>
+                      <Link to="/admin/categories" className="flex items-center gap-2">
+                        <ArrowLeft className="h-4 w-4" />
+                        <span>Back</span>
+                      </Link>
+                    </Button>
+                    <Button type="submit" disabled={isSaving}>
+                      {isSaving ? (
+                        <>
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="mr-2 h-4 w-4" />
+                          Save
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
             </CardContent>
-            
-            <CardFooter className="flex justify-end space-x-2 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate("/admin/categories")}
-                disabled={isLoading}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? (
-                  "Saving..."
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    {isEditing ? "Update" : "Save"}
-                  </>
-                )}
-              </Button>
-            </CardFooter>
-          </form>
-        </Form>
-      </Card>
+          </Card>
+        </div>
+      )}
     </Layout>
   );
 };

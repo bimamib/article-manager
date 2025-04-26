@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { loginSchema } from "@/lib/validations";
 import { LogIn } from "lucide-react";
+import { LoginData } from "@/types";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
@@ -33,7 +34,11 @@ const LoginPage: React.FC = () => {
 
   const onSubmit = async (data: LoginFormValues) => {
     try {
-      await login(data);
+      const loginData: LoginData = {
+        email: data.email,
+        password: data.password
+      };
+      await login(loginData);
     } catch (error) {
       console.error("Login error:", error);
     }

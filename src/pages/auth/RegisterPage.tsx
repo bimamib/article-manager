@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { registerSchema } from "@/lib/validations";
 import { UserPlus } from "lucide-react";
+import { RegisterData } from "@/types";
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
@@ -35,7 +36,13 @@ const RegisterPage: React.FC = () => {
 
   const onSubmit = async (data: RegisterFormValues) => {
     try {
-      await registerUser(data);
+      const registerData: RegisterData = {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        password_confirmation: data.password_confirmation
+      };
+      await registerUser(registerData);
     } catch (error) {
       console.error("Register error:", error);
     }
