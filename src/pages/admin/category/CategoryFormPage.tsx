@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -46,7 +47,7 @@ const CategoryFormPage = () => {
       if (!isEditMode) return;
       
       try {
-        const category = await categoryService.getCategory(id);
+        const category = await categoryService.getCategoryById(id);
         form.reset({ name: category.name });
       } catch (error) {
         console.error("Error fetching category:", error);

@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -65,11 +66,11 @@ const ArticleFormPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const categoriesData = await categoryService.getCategories();
+        const categoriesData = await categoryService.getAllCategories();
         setCategories(categoriesData);
 
         if (isEditMode) {
-          const article = await articleService.getArticle(id);
+          const article = await articleService.getArticleById(id);
           form.reset({
             title: article.title,
             content: article.content,
