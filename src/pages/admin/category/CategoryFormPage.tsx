@@ -47,7 +47,7 @@ const CategoryFormPage = () => {
       if (!isEditMode) return;
       
       try {
-        const category = await categoryService.getCategoryById(id);
+        const category = await categoryService.getCategoryById(id as string);
         form.reset({ name: category.name });
       } catch (error) {
         console.error("Error fetching category:", error);
@@ -73,12 +73,15 @@ const CategoryFormPage = () => {
     
     try {
       if (isEditMode) {
-        await categoryService.updateCategory(id, categoryData);
+        await categoryService.updateCategory(id as string, categoryData);
         toast({ title: "Success", description: "Category updated successfully" });
       } else {
         await categoryService.createCategory(categoryData);
         toast({ title: "Success", description: "Category created successfully" });
       }
+      
+      // Force a refresh of the categories list in local storage
+      await categoryService.getAllCategories(true);
       navigate("/admin/categories");
     } catch (error) {
       console.error("Error saving category:", error);

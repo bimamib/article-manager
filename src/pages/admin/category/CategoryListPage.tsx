@@ -45,6 +45,19 @@ const CategoryListPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const { toast } = useToast();
   
+  // Force a refresh when the component mounts
+  useEffect(() => {
+    const refreshCategories = async () => {
+      try {
+        await categoryService.getAllCategories(true);
+      } catch (error) {
+        console.error("Error refreshing categories:", error);
+      }
+    };
+    
+    refreshCategories();
+  }, []);
+  
   useEffect(() => {
     const fetchCategories = async () => {
       setIsLoading(true);

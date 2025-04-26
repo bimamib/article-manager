@@ -34,7 +34,8 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     const fetchCategories = async () => {
       try {
         setIsLoading(true);
-        const fetchedCategories = await categoryService.getAllCategories();
+        // Force-refresh categories to ensure we get the latest data
+        const fetchedCategories = await categoryService.getAllCategories(true);
         setCategories(fetchedCategories || []);
       } catch (error) {
         console.error("Error fetching categories:", error);

@@ -7,8 +7,28 @@ import {
   PaginatedResponse 
 } from "@/types";
 
-// Menyimpan data lokal sementara untuk simulasi server
-let localCategories = [...dummyData.categories];
+// Initialize local categories from localStorage or fallback to dummy data
+const getLocalCategories = () => {
+  try {
+    const savedCategories = localStorage.getItem('localCategories');
+    return savedCategories ? JSON.parse(savedCategories) : [...dummyData.categories];
+  } catch (error) {
+    console.error("Error reading local categories:", error);
+    return [...dummyData.categories];
+  }
+};
+
+// Update local categories and save to localStorage
+const saveLocalCategories = (categories: Category[]) => {
+  try {
+    localStorage.setItem('localCategories', JSON.stringify(categories));
+  } catch (error) {
+    console.error("Error saving local categories:", error);
+  }
+};
+
+// Initial state loaded from localStorage
+let localCategories = getLocalCategories();
 
 export const categoryService = {
   async getCategories(page: number = 1, search: string = ""): Promise<PaginatedResponse<Category>> {
@@ -22,7 +42,7 @@ export const categoryService = {
     } catch (error) {
       console.error("Error fetching categories:", error);
       
-      // Fallback dengan data lokal
+      // Fallback with local storage data
       const filteredCategories = search 
         ? localCategories.filter(c => c.name.toLowerCase().includes(search.toLowerCase()))
         : localCategories;
@@ -52,22 +72,30 @@ export const categoryService = {
     } catch (error) {
       console.error("Error fetching category by ID:", error);
       
-      // Fallback dengan data lokal
+      // Fallback with local storage data
       const category = localCategories.find(category => category.id === id);
       if (!category) throw new Error("Category not found");
       return category;
     }
   },
   
-  async getAllCategories(): Promise<Category[]> {
+  async getAllCategories(forceRefresh: boolean = false): Promise<Category[]> {
     try {
       // Changed from '/categories/all' to '/categories' with a parameter to match API endpoint
       const response = await api.get<ApiResponse<PaginatedResponse<Category>>>("/categories?per_page=100");
-      return response.data.data.data;
+      const apiCategories = response.data.data.data;
+      
+      // If successful API call, update local categories
+      if (apiCategories && apiCategories.length > 0) {
+        localCategories = apiCategories;
+        saveLocalCategories(localCategories);
+      }
+      
+      return apiCategories;
     } catch (error) {
       console.error("Error fetching all categories:", error);
       
-      // Fallback dengan data lokal
+      // Fallback with local storage data
       return localCategories;
     }
   },
@@ -75,11 +103,17 @@ export const categoryService = {
   async createCategory(category: CategoryFormData): Promise<Category> {
     try {
       const response = await api.post<ApiResponse<Category>>("/categories", category);
-      return response.data.data;
+      const newCategory = response.data.data;
+      
+      // Update local categories storage
+      localCategories = [...localCategories, newCategory];
+      saveLocalCategories(localCategories);
+      
+      return newCategory;
     } catch (error) {
       console.error("Error creating category:", error);
       
-      // Fallback dengan data lokal - simulasikan pembuatan kategori
+      // Fallback with local storage - simulate category creation
       const newCategory = {
         id: `new-${Date.now()}`,
         name: category.name,
@@ -87,8 +121,9 @@ export const categoryService = {
         updated_at: new Date().toISOString()
       };
       
-      // Tambahkan kategori baru ke array lokal
+      // Add new category to local array
       localCategories = [...localCategories, newCategory];
+      saveLocalCategories(localCategories);
       
       return newCategory;
     }
@@ -97,14 +132,23 @@ export const categoryService = {
   async updateCategory(id: string, category: CategoryFormData): Promise<Category> {
     try {
       const response = await api.put<ApiResponse<Category>>(`/categories/${id}`, category);
-      return response.data.data;
+      const updatedCategory = response.data.data;
+      
+      // Update local categories storage
+      localCategories = localCategories.map(item => 
+        item.id === id ? updatedCategory : item
+      );
+      saveLocalCategories(localCategories);
+      
+      return updatedCategory;
     } catch (error) {
       console.error("Error updating category:", error);
       
-      // Fallback dengan data lokal - simulasikan pembaruan kategori
+      // Fallback with local storage - simulate category update
       localCategories = localCategories.map(item => 
         item.id === id ? { ...item, name: category.name, updated_at: new Date().toISOString() } : item
       );
+      saveLocalCategories(localCategories);
       
       const updatedCategory = localCategories.find(item => item.id === id);
       if (!updatedCategory) throw new Error("Category not found");
@@ -116,11 +160,16 @@ export const categoryService = {
   async deleteCategory(id: string): Promise<void> {
     try {
       await api.delete(`/categories/${id}`);
+      
+      // Update local categories storage
+      localCategories = localCategories.filter(item => item.id !== id);
+      saveLocalCategories(localCategories);
     } catch (error) {
       console.error("Error deleting category:", error);
       
-      // Fallback dengan data lokal - simulasikan penghapusan kategori
+      // Fallback with local storage - simulate category deletion
       localCategories = localCategories.filter(item => item.id !== id);
+      saveLocalCategories(localCategories);
     }
   }
 };
