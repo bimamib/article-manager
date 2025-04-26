@@ -36,10 +36,10 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
         setIsLoading(true);
         // Force-refresh categories to ensure we get the latest data
         const fetchedCategories = await categoryService.getAllCategories(true);
-        console.log("CategoryFilter - Fetched categories:", fetchedCategories);
+        console.log("CategoryFilter - Kategori yang diambil:", fetchedCategories);
         setCategories(Array.isArray(fetchedCategories) ? fetchedCategories : []);
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error("Error saat mengambil kategori:", error);
         setCategories([]);
       } finally {
         setIsLoading(false);
@@ -54,6 +54,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     setSheetOpen(false);
   };
 
+  // Memastikan categories adalah array sebelum melakukan map
   const categoryButtons = (
     <div className="space-y-1">
       <Button
@@ -61,7 +62,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
         className="w-full justify-start"
         onClick={() => handleCategoryClick("")}
       >
-        All Categories
+        Semua Kategori
       </Button>
       {Array.isArray(categories) && categories.length > 0 ? (
         categories.map((category) => (
@@ -77,7 +78,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
       ) : (
         !isLoading && (
           <div className="text-sm text-muted-foreground p-2 text-center">
-            No categories available
+            Tidak ada kategori tersedia
           </div>
         )
       )}
@@ -96,7 +97,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
         <SheetContent side="left" className="w-[80vw]">
           <SheetHeader className="mb-4">
             <SheetTitle className="flex items-center justify-between">
-              Categories
+              Kategori
               <Button
                 variant="ghost"
                 size="icon"
@@ -110,7 +111,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
           <ScrollArea className="h-[calc(100vh-8rem)]">
             {isLoading ? (
               <div className="flex items-center justify-center h-20">
-                <p className="text-sm text-muted-foreground">Loading...</p>
+                <p className="text-sm text-muted-foreground">Memuat...</p>
               </div>
             ) : (
               categoryButtons
@@ -123,11 +124,11 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
 
   return (
     <div className="w-60 hidden md:block">
-      <div className="font-semibold text-lg mb-4">Categories</div>
+      <div className="font-semibold text-lg mb-4">Kategori</div>
       <Separator className="mb-4" />
       {isLoading ? (
         <div className="flex items-center justify-center h-20">
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <p className="text-sm text-muted-foreground">Memuat...</p>
         </div>
       ) : (
         <ScrollArea className="h-[calc(100vh-12rem)]">

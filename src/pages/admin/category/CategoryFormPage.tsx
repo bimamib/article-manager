@@ -23,7 +23,7 @@ import { Loading } from "@/components/ui/loading";
 import { CategoryFormData } from "@/types";
 
 const formSchema = z.object({
-  name: z.string().min(1, { message: "Name is required" }),
+  name: z.string().min(1, { message: "Nama kategori diperlukan" }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -50,10 +50,10 @@ const CategoryFormPage = () => {
         const category = await categoryService.getCategoryById(id as string);
         form.reset({ name: category.name });
       } catch (error) {
-        console.error("Error fetching category:", error);
+        console.error("Error saat mengambil data kategori:", error);
         toast({
           title: "Error",
-          description: "Failed to load category data",
+          description: "Gagal memuat data kategori",
           variant: "destructive",
         });
         navigate("/admin/categories");
@@ -73,25 +73,28 @@ const CategoryFormPage = () => {
     
     try {
       if (isEditMode) {
-        console.log("Updating category:", id, categoryData);
+        console.log("Memperbarui kategori:", id, categoryData);
         await categoryService.updateCategory(id as string, categoryData);
-        toast({ title: "Success", description: "Category updated successfully" });
+        toast({ title: "Berhasil", description: "Kategori berhasil diperbarui" });
       } else {
-        console.log("Creating category:", categoryData);
+        console.log("Membuat kategori baru:", categoryData);
         await categoryService.createCategory(categoryData);
-        toast({ title: "Success", description: "Category created successfully" });
+        toast({ title: "Berhasil", description: "Kategori berhasil dibuat" });
       }
       
-      // Force a refresh of the categories list in local storage
-      console.log("Force refreshing categories list");
+      // Paksa refresh daftar kategori di localStorage
+      console.log("Memaksa refresh daftar kategori");
       await categoryService.getAllCategories(true);
+      
+      // Tunggu sejenak untuk memastikan data tersimpan
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       navigate("/admin/categories");
     } catch (error) {
-      console.error("Error saving category:", error);
+      console.error("Error saat menyimpan kategori:", error);
       toast({
         title: "Error",
-        description: `Failed to ${isEditMode ? "update" : "create"} category`,
+        description: `Gagal ${isEditMode ? "memperbarui" : "membuat"} kategori`,
         variant: "destructive",
       });
     } finally {
@@ -107,7 +110,7 @@ const CategoryFormPage = () => {
         <div className="container mx-auto py-10">
           <Card>
             <CardHeader>
-              <CardTitle>{isEditMode ? "Edit Category" : "Create Category"}</CardTitle>
+              <CardTitle>{isEditMode ? "Edit Kategori" : "Buat Kategori"}</CardTitle>
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -117,9 +120,9 @@ const CategoryFormPage = () => {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Name</FormLabel>
+                        <FormLabel>Nama</FormLabel>
                         <FormControl>
-                          <Input placeholder="Category Name" {...field} />
+                          <Input placeholder="Nama Kategori" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -129,18 +132,18 @@ const CategoryFormPage = () => {
                     <Button variant="ghost" asChild>
                       <Link to="/admin/categories" className="flex items-center gap-2">
                         <ArrowLeft className="h-4 w-4" />
-                        <span>Back</span>
+                        <span>Kembali</span>
                       </Link>
                     </Button>
                     <Button type="submit" disabled={isSaving}>
                       {isSaving ? (
                         <>
-                          Saving...
+                          Menyimpan...
                         </>
                       ) : (
                         <>
                           <Save className="mr-2 h-4 w-4" />
-                          Save
+                          Simpan
                         </>
                       )}
                     </Button>

@@ -49,8 +49,9 @@ const CategoryListPage: React.FC = () => {
   const fetchCategories = async (refresh: boolean = false) => {
     setIsLoading(true);
     try {
-      // If refresh is true, force a fresh fetch from storage
+      // Jika refresh=true, paksa refresh data dari storage
       if (refresh) {
+        console.log("Memaksa refresh semua kategori");
         await categoryService.getAllCategories(true);
       }
       
@@ -59,12 +60,13 @@ const CategoryListPage: React.FC = () => {
         searchQuery
       );
       
-      console.log("Fetched categories:", response.data);
+      console.log("Kategori yang diambil:", response.data);
       
+      // Pastikan response.data adalah array sebelum digunakan
       if (Array.isArray(response.data)) {
         setCategories(response.data);
       } else {
-        console.error("Invalid categories data format:", response.data);
+        console.error("Format data kategori tidak valid:", response.data);
         setCategories([]);
       }
       
@@ -75,10 +77,10 @@ const CategoryListPage: React.FC = () => {
         per_page: 10,
       });
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      console.error("Error saat mengambil kategori:", error);
       toast({
         title: "Error",
-        description: "Failed to fetch categories",
+        description: "Gagal mengambil data kategori",
         variant: "destructive",
       });
       // Set default values on error
@@ -95,13 +97,15 @@ const CategoryListPage: React.FC = () => {
     }
   };
   
-  // Force a refresh when the component mounts
+  // Paksa refresh ketika komponen dimuat
   useEffect(() => {
+    console.log("CategoryListPage - Komponen dimuat, memaksa refresh");
     fetchCategories(true);
   }, []);
   
-  // Refetch when page or search changes
+  // Re-fetch ketika halaman atau pencarian berubah
   useEffect(() => {
+    console.log("CategoryListPage - Halaman atau pencarian berubah");
     fetchCategories(false);
   }, [currentPage, searchQuery]);
   
@@ -115,6 +119,7 @@ const CategoryListPage: React.FC = () => {
   };
   
   const handleRefresh = async () => {
+    console.log("Tombol refresh ditekan, memaksa refresh data");
     setRefreshing(true);
     await fetchCategories(true);
   };
@@ -127,8 +132,8 @@ const CategoryListPage: React.FC = () => {
         setCategories(categories.filter(category => category.id !== id));
       }
       toast({
-        title: "Success",
-        description: "Category deleted successfully",
+        title: "Berhasil",
+        description: "Kategori berhasil dihapus",
       });
       
       // Reload categories if the current page might be empty after deletion
@@ -139,10 +144,10 @@ const CategoryListPage: React.FC = () => {
         fetchCategories(true);
       }
     } catch (error) {
-      console.error("Error deleting category:", error);
+      console.error("Error saat menghapus kategori:", error);
       toast({
         title: "Error",
-        description: "Failed to delete category",
+        description: "Gagal menghapus kategori",
         variant: "destructive",
       });
     }
@@ -152,9 +157,9 @@ const CategoryListPage: React.FC = () => {
     <Layout>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Categories</h1>
+          <h1 className="text-3xl font-bold mb-2">Kategori</h1>
           <p className="text-muted-foreground">
-            Manage your article categories
+            Kelola kategori artikel Anda
           </p>
         </div>
         <div className="flex gap-2">
@@ -164,12 +169,12 @@ const CategoryListPage: React.FC = () => {
             disabled={refreshing}
           >
             <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-            {refreshing ? 'Refreshing...' : 'Refresh'}
+            {refreshing ? 'Memperbarui...' : 'Refresh'}
           </Button>
           <Button asChild>
             <Link to="/admin/categories/create">
               <PlusCircle className="mr-2 h-4 w-4" />
-              New Category
+              Kategori Baru
             </Link>
           </Button>
         </div>
@@ -178,7 +183,7 @@ const CategoryListPage: React.FC = () => {
       <div className="mb-6">
         <SearchBar
           onSearch={handleSearch}
-          placeholder="Search categories..."
+          placeholder="Cari kategori..."
           className="max-w-md"
         />
       </div>
@@ -186,16 +191,16 @@ const CategoryListPage: React.FC = () => {
       {isLoading ? (
         <Loading />
       ) : categories.length === 0 ? (
-        <Empty message="No categories found" />
+        <Empty message="Tidak ada kategori ditemukan" />
       ) : (
         <div className="bg-card border rounded-md">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Updated</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead>Nama</TableHead>
+                <TableHead>Dibuat</TableHead>
+                <TableHead>Diperbarui</TableHead>
+                <TableHead className="w-[100px]">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -220,23 +225,23 @@ const CategoryListPage: React.FC = () => {
                       <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="icon">
                           <Trash className="h-4 w-4" />
-                          <span className="sr-only">Delete</span>
+                          <span className="sr-only">Hapus</span>
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Category</AlertDialogTitle>
+                          <AlertDialogTitle>Hapus Kategori</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Are you sure you want to delete the category "{category.name}"? This action cannot be undone.
+                            Apakah Anda yakin ingin menghapus kategori "{category.name}"? Tindakan ini tidak dapat dibatalkan.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogCancel>Batal</AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => handleDeleteCategory(category.id)}
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
-                            Delete
+                            Hapus
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>

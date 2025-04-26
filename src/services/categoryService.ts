@@ -11,9 +11,15 @@ import {
 const getLocalCategories = () => {
   try {
     const savedCategories = localStorage.getItem('localCategories');
-    return savedCategories ? JSON.parse(savedCategories) : [...dummyData.categories];
+    if (savedCategories) {
+      console.log("Berhasil mengambil kategori dari localStorage:", JSON.parse(savedCategories));
+      return JSON.parse(savedCategories);
+    } else {
+      console.log("Tidak ada kategori di localStorage, menggunakan data dummy");
+      return [...dummyData.categories];
+    }
   } catch (error) {
-    console.error("Error reading local categories:", error);
+    console.error("Error saat membaca kategori lokal:", error);
     return [...dummyData.categories];
   }
 };
@@ -22,9 +28,9 @@ const getLocalCategories = () => {
 const saveLocalCategories = (categories: Category[]) => {
   try {
     localStorage.setItem('localCategories', JSON.stringify(categories));
-    console.log("Categories saved to localStorage:", categories);
+    console.log("Kategori berhasil disimpan ke localStorage:", categories);
   } catch (error) {
-    console.error("Error saving local categories:", error);
+    console.error("Error saat menyimpan kategori lokal:", error);
   }
 };
 
@@ -34,22 +40,33 @@ let localCategories = getLocalCategories();
 export const categoryService = {
   async getCategories(page: number = 1, search: string = ""): Promise<PaginatedResponse<Category>> {
     try {
+      // Selalu refresh dari localStorage terlebih dahulu
+      localCategories = getLocalCategories();
+      console.log("getCategories - Kategori dari localStorage:", localCategories);
+      
       const params = new URLSearchParams();
       params.append("page", page.toString());
       if (search) params.append("search", search);
       
       const response = await api.get<ApiResponse<PaginatedResponse<Category>>>(`/categories?${params.toString()}`);
+      const apiCategories = response.data.data;
+      
+      // Jika API berhasil, update kategori lokal
+      if (apiCategories && apiCategories.data && apiCategories.data.length > 0) {
+        localCategories = apiCategories.data;
+        saveLocalCategories(localCategories);
+      }
+      
       return response.data.data;
     } catch (error) {
-      console.error("Error fetching categories:", error);
-      
-      // Refresh local categories from localStorage to get latest data
-      localCategories = getLocalCategories();
+      console.error("Error saat mengambil kategori:", error);
       
       // Fallback with local storage data
       const filteredCategories = search 
         ? localCategories.filter(c => c.name.toLowerCase().includes(search.toLowerCase()))
         : localCategories;
+      
+      console.log("Mengembalikan kategori dari localStorage:", filteredCategories);
       
       // Mock pagination
       const itemsPerPage = 10;
@@ -71,46 +88,44 @@ export const categoryService = {
   
   async getCategoryById(id: string): Promise<Category> {
     try {
+      // Selalu refresh dari localStorage terlebih dahulu
+      localCategories = getLocalCategories();
+      
       const response = await api.get<ApiResponse<Category>>(`/categories/${id}`);
       return response.data.data;
     } catch (error) {
-      console.error("Error fetching category by ID:", error);
-      
-      // Refresh local categories from localStorage to get latest data
-      localCategories = getLocalCategories();
+      console.error("Error saat mengambil kategori berdasarkan ID:", error);
       
       // Fallback with local storage data
       const category = localCategories.find(category => category.id === id);
-      if (!category) throw new Error("Category not found");
+      if (!category) throw new Error("Kategori tidak ditemukan");
       return category;
     }
   },
   
   async getAllCategories(forceRefresh: boolean = false): Promise<Category[]> {
     try {
-      // Always refresh from localStorage first to ensure we have the latest data
-      if (forceRefresh) {
-        localCategories = getLocalCategories();
-      }
+      // Selalu refresh dari localStorage terlebih dahulu
+      localCategories = getLocalCategories();
+      console.log("getAllCategories - Kategori dari localStorage:", localCategories);
       
       // Try API call
       const response = await api.get<ApiResponse<PaginatedResponse<Category>>>("/categories?per_page=100");
       const apiCategories = response.data.data.data;
       
       // If successful API call, update local categories
-      if (apiCategories && apiCategories.length > 0) {
+      if (Array.isArray(apiCategories) && apiCategories.length > 0) {
         localCategories = apiCategories;
         saveLocalCategories(localCategories);
+        console.log("getAllCategories - Kategori dari API disimpan:", apiCategories);
+        return apiCategories;
       }
       
-      return apiCategories;
+      console.log("getAllCategories - Mengembalikan kategori dari localStorage:", localCategories);
+      return localCategories;
     } catch (error) {
-      console.error("Error fetching all categories:", error);
-      
-      // Always refresh from localStorage to get latest data
-      localCategories = getLocalCategories();
-      console.log("Returning categories from localStorage:", localCategories);
-      
+      console.error("Error saat mengambil semua kategori:", error);
+      console.log("getAllCategories - Error, mengembalikan kategori dari localStorage:", localCategories);
       return localCategories;
     }
   },
@@ -121,12 +136,14 @@ export const categoryService = {
       const newCategory = response.data.data;
       
       // Update local categories storage
+      localCategories = getLocalCategories(); // Refresh terlebih dahulu
       localCategories = [...localCategories, newCategory];
       saveLocalCategories(localCategories);
+      console.log("Kategori baru dibuat dan disimpan:", newCategory);
       
       return newCategory;
     } catch (error) {
-      console.error("Error creating category:", error);
+      console.error("Error saat membuat kategori:", error);
       
       // Fallback with local storage - simulate category creation
       const newCategory = {
@@ -137,9 +154,10 @@ export const categoryService = {
       };
       
       // Add new category to local array
+      localCategories = getLocalCategories(); // Refresh terlebih dahulu
       localCategories = [...localCategories, newCategory];
       saveLocalCategories(localCategories);
-      console.log("Created new category locally:", newCategory);
+      console.log("Kategori baru dibuat secara lokal:", newCategory);
       
       return newCategory;
     }
@@ -151,23 +169,27 @@ export const categoryService = {
       const updatedCategory = response.data.data;
       
       // Update local categories storage
+      localCategories = getLocalCategories(); // Refresh terlebih dahulu
       localCategories = localCategories.map(item => 
         item.id === id ? updatedCategory : item
       );
       saveLocalCategories(localCategories);
+      console.log("Kategori berhasil diperbarui:", updatedCategory);
       
       return updatedCategory;
     } catch (error) {
-      console.error("Error updating category:", error);
+      console.error("Error saat memperbarui kategori:", error);
       
       // Fallback with local storage - simulate category update
+      localCategories = getLocalCategories(); // Refresh terlebih dahulu
       localCategories = localCategories.map(item => 
         item.id === id ? { ...item, name: category.name, updated_at: new Date().toISOString() } : item
       );
       saveLocalCategories(localCategories);
       
       const updatedCategory = localCategories.find(item => item.id === id);
-      if (!updatedCategory) throw new Error("Category not found");
+      if (!updatedCategory) throw new Error("Kategori tidak ditemukan");
+      console.log("Kategori berhasil diperbarui secara lokal:", updatedCategory);
       
       return updatedCategory;
     }
@@ -178,14 +200,18 @@ export const categoryService = {
       await api.delete(`/categories/${id}`);
       
       // Update local categories storage
+      localCategories = getLocalCategories(); // Refresh terlebih dahulu
       localCategories = localCategories.filter(item => item.id !== id);
       saveLocalCategories(localCategories);
+      console.log("Kategori berhasil dihapus dengan ID:", id);
     } catch (error) {
-      console.error("Error deleting category:", error);
+      console.error("Error saat menghapus kategori:", error);
       
       // Fallback with local storage - simulate category deletion
+      localCategories = getLocalCategories(); // Refresh terlebih dahulu
       localCategories = localCategories.filter(item => item.id !== id);
       saveLocalCategories(localCategories);
+      console.log("Kategori berhasil dihapus secara lokal dengan ID:", id);
     }
   }
 };
