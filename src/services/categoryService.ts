@@ -7,6 +7,9 @@ import {
   PaginatedResponse 
 } from "@/types";
 
+// Menyimpan data lokal sementara untuk simulasi server
+let localCategories = [...dummyData.categories];
+
 export const categoryService = {
   async getCategories(page: number = 1, search: string = ""): Promise<PaginatedResponse<Category>> {
     try {
@@ -19,10 +22,10 @@ export const categoryService = {
     } catch (error) {
       console.error("Error fetching categories:", error);
       
-      // Fallback with dummy data
+      // Fallback dengan data lokal
       const filteredCategories = search 
-        ? dummyData.categories.filter(c => c.name.toLowerCase().includes(search.toLowerCase()))
-        : dummyData.categories;
+        ? localCategories.filter(c => c.name.toLowerCase().includes(search.toLowerCase()))
+        : localCategories;
       
       // Mock pagination
       const itemsPerPage = 10;
@@ -49,8 +52,8 @@ export const categoryService = {
     } catch (error) {
       console.error("Error fetching category by ID:", error);
       
-      // Fallback with dummy data
-      const category = dummyData.categories.find(category => category.id === id);
+      // Fallback dengan data lokal
+      const category = localCategories.find(category => category.id === id);
       if (!category) throw new Error("Category not found");
       return category;
     }
@@ -64,8 +67,8 @@ export const categoryService = {
     } catch (error) {
       console.error("Error fetching all categories:", error);
       
-      // Fallback with dummy data
-      return dummyData.categories;
+      // Fallback dengan data lokal
+      return localCategories;
     }
   },
   
@@ -76,13 +79,18 @@ export const categoryService = {
     } catch (error) {
       console.error("Error creating category:", error);
       
-      // Fallback with dummy data
-      return {
+      // Fallback dengan data lokal - simulasikan pembuatan kategori
+      const newCategory = {
         id: `new-${Date.now()}`,
         name: category.name,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
+      
+      // Tambahkan kategori baru ke array lokal
+      localCategories = [...localCategories, newCategory];
+      
+      return newCategory;
     }
   },
   
@@ -93,13 +101,15 @@ export const categoryService = {
     } catch (error) {
       console.error("Error updating category:", error);
       
-      // Fallback with dummy data
-      return {
-        id,
-        name: category.name,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
+      // Fallback dengan data lokal - simulasikan pembaruan kategori
+      localCategories = localCategories.map(item => 
+        item.id === id ? { ...item, name: category.name, updated_at: new Date().toISOString() } : item
+      );
+      
+      const updatedCategory = localCategories.find(item => item.id === id);
+      if (!updatedCategory) throw new Error("Category not found");
+      
+      return updatedCategory;
     }
   },
   
@@ -108,7 +118,9 @@ export const categoryService = {
       await api.delete(`/categories/${id}`);
     } catch (error) {
       console.error("Error deleting category:", error);
-      // For fallback in dummy mode, there's nothing to do
+      
+      // Fallback dengan data lokal - simulasikan penghapusan kategori
+      localCategories = localCategories.filter(item => item.id !== id);
     }
   }
 };

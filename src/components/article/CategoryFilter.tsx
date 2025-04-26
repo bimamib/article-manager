@@ -35,9 +35,10 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
       try {
         setIsLoading(true);
         const fetchedCategories = await categoryService.getAllCategories();
-        setCategories(fetchedCategories);
+        setCategories(fetchedCategories || []);
       } catch (error) {
         console.error("Error fetching categories:", error);
+        setCategories([]);
       } finally {
         setIsLoading(false);
       }
@@ -60,7 +61,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
       >
         All Categories
       </Button>
-      {categories.map((category) => (
+      {Array.isArray(categories) && categories.map((category) => (
         <Button
           key={category.id}
           variant={selectedCategory === category.id ? "default" : "ghost"}
