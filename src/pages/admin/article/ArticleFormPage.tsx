@@ -67,16 +67,18 @@ const ArticleFormPage = () => {
     const fetchData = async () => {
       try {
         const categoriesData = await categoryService.getAllCategories();
-        setCategories(categoriesData);
+        setCategories(categoriesData || []);
 
-        if (isEditMode) {
+        if (isEditMode && id) {
           const article = await articleService.getArticleById(id);
-          form.reset({
-            title: article.title,
-            content: article.content,
-            image: article.image,
-            category_id: article.category_id,
-          });
+          if (article) {
+            form.reset({
+              title: article.title || "",
+              content: article.content || "",
+              image: article.image || "",
+              category_id: article.category_id || "",
+            });
+          }
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -85,6 +87,7 @@ const ArticleFormPage = () => {
           description: "Failed to load necessary data",
           variant: "destructive",
         });
+        setCategories([]);
       } finally {
         setIsLoading(false);
       }
@@ -104,7 +107,7 @@ const ArticleFormPage = () => {
     };
     
     try {
-      if (isEditMode) {
+      if (isEditMode && id) {
         await articleService.updateArticle(id, articleData);
         toast({ title: "Success", description: "Article updated successfully" });
       } else {
@@ -233,11 +236,17 @@ const ArticleFormPage = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {categories.map((category) => (
-                              <SelectItem key={category.id} value={category.id}>
-                                {category.name}
+                            {Array.isArray(categories) && categories.length > 0 ? (
+                              categories.map((category) => (
+                                <SelectItem key={category.id} value={category.id}>
+                                  {category.name}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <SelectItem value="no-categories" disabled>
+                                No categories available
                               </SelectItem>
-                            ))}
+                            )}
                           </SelectContent>
                         </Select>
                         <FormMessage />
