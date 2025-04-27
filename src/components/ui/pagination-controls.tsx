@@ -23,7 +23,24 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
   const { current_page, total_pages } = pagination;
 
   const handlePageChange = (page: number) => {
-    if (page < 1 || page > total_pages || page === current_page) return;
+    console.log("PaginationControls - Mencoba mengubah halaman ke:", page);
+    console.log("PaginationControls - Validasi:", { 
+      currentPage: current_page, 
+      totalPages: total_pages, 
+      isValid: !(page < 1 || page > total_pages || page === current_page)
+    });
+    
+    if (page < 1 || page > total_pages) {
+      console.log("PaginationControls - Halaman tidak valid:", page);
+      return;
+    }
+    
+    if (page === current_page) {
+      console.log("PaginationControls - Sudah di halaman yang sama:", page);
+      return;
+    }
+    
+    console.log("PaginationControls - Memanggil onPageChange dengan halaman:", page);
     onPageChange(page);
   };
 

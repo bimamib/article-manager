@@ -93,7 +93,7 @@ const ArticlesPage: React.FC = () => {
         }
         
         setPagination(response.pagination || {
-          current_page: 1,
+          current_page: currentPage, // Use currentPage instead of default 1
           total_pages: 1,
           total: 0,
           per_page: 9,
@@ -109,7 +109,7 @@ const ArticlesPage: React.FC = () => {
       // Set empty state on error
       setArticles([]);
       setPagination({
-        current_page: 1,
+        current_page: currentPage, // Use currentPage instead of default 1
         total_pages: 1,
         total: 0,
         per_page: 9,
@@ -129,6 +129,7 @@ const ArticlesPage: React.FC = () => {
   // Re-fetch when search or category changes
   useEffect(() => {
     console.log("ArticlePage - Pencarian atau kategori berubah");
+    setCurrentPage(1); // Reset page to 1 when filters change
     fetchArticles(true); // Force refresh when filters change
   }, [searchQuery, selectedCategory]);
   
@@ -141,15 +142,14 @@ const ArticlesPage: React.FC = () => {
   const handleCategorySelect = (categoryId: string) => {
     console.log("ArticlePage - Kategori dipilih:", categoryId);
     setSelectedCategory(categoryId);
-    setCurrentPage(1);
   };
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setCurrentPage(1);
   };
 
   const handlePageChange = (page: number) => {
+    console.log("ArticlePage - handlePageChange dipanggil dengan halaman:", page);
     setCurrentPage(page);
     window.scrollTo(0, 0);
   };
