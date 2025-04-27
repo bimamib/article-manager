@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -49,39 +48,33 @@ const CategoryListPage: React.FC = () => {
   const fetchCategories = async (forceRefresh: boolean = true) => {
     setIsLoading(true);
     try {
-      // Selalu paksa refresh data dari storage agar kategori muncul tanpa harus dicari
+      // Memaksa refresh data dari storage
       console.log("CategoryListPage - Memulai pengambilan kategori, forceRefresh:", forceRefresh);
       
       // Pertama ambil semua kategori untuk memastikan data terbaru
-      if (forceRefresh) {
-        await categoryService.getAllCategories(true);
+      const allCategories = await categoryService.getAllCategories(true);
+      console.log("CategoryListPage - Semua kategori yang diambil:", allCategories);
+      
+      // Gunakan data semua kategori langsung
+      const itemsPerPage = 10;
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      
+      let filteredCategories = allCategories;
+      if (searchQuery) {
+        filteredCategories = allCategories.filter(cat => 
+          cat.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
       }
       
-      const response: PaginatedResponse<Category> = await categoryService.getCategories(
-        currentPage,
-        searchQuery
-      );
+      const paginatedCategories = filteredCategories.slice(startIndex, endIndex);
       
-      console.log("CategoryListPage - Kategori yang diambil:", response.data);
-      
-      // Pastikan response.data adalah array sebelum digunakan
-      if (Array.isArray(response.data)) {
-        setCategories(response.data);
-      } else {
-        console.error("Format data kategori tidak valid:", response.data);
-        setCategories([]);
-        toast({
-          title: "Peringatan",
-          description: "Format data kategori tidak valid",
-          variant: "destructive",
-        });
-      }
-      
-      setPagination(response.pagination || {
-        current_page: 1,
-        total_pages: 1,
-        total: 0,
-        per_page: 10,
+      setCategories(paginatedCategories);
+      setPagination({
+        current_page: currentPage,
+        total_pages: Math.ceil(filteredCategories.length / itemsPerPage),
+        total: filteredCategories.length,
+        per_page: itemsPerPage,
       });
     } catch (error) {
       console.error("Error saat mengambil kategori:", error);
@@ -112,10 +105,8 @@ const CategoryListPage: React.FC = () => {
   
   // Re-fetch ketika halaman atau pencarian berubah
   useEffect(() => {
-    if (searchQuery) {
-      console.log("CategoryListPage - Pencarian berubah:", searchQuery);
-      fetchCategories(false);
-    }
+    console.log("CategoryListPage - Halaman atau pencarian berubah:", { currentPage, searchQuery });
+    fetchCategories(false);
   }, [currentPage, searchQuery]);
   
   const handleSearch = (query: string) => {

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -37,20 +36,30 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     try {
       setIsLoading(true);
       console.log("CategoryFilter - Memulai pengambilan kategori, forceRefresh:", forceRefresh);
-      // Selalu paksa refresh untuk memastikan kategori terbaru ditampilkan
-      const fetchedCategories = await categoryService.getAllCategories(forceRefresh);
-      console.log("CategoryFilter - Kategori yang diambil:", fetchedCategories);
       
-      if (Array.isArray(fetchedCategories)) {
-        setCategories(fetchedCategories);
+      // Mengambil langsung dari localStorage untuk performa
+      const localCategories = JSON.parse(localStorage.getItem('localCategories') || '[]');
+      
+      if (localCategories && Array.isArray(localCategories) && localCategories.length > 0) {
+        console.log("CategoryFilter - Menggunakan kategori dari localStorage:", localCategories);
+        setCategories(localCategories);
       } else {
-        console.error("Format data kategori tidak valid:", fetchedCategories);
-        setCategories([]);
-        toast({
-          title: "Peringatan",
-          description: "Format data kategori tidak valid",
-          variant: "destructive",
-        });
+        // Jika tidak ada di localStorage, paksa refresh dari API
+        console.log("CategoryFilter - Tidak ada data di localStorage, mengambil dari API");
+        const fetchedCategories = await categoryService.getAllCategories(true);
+        
+        if (Array.isArray(fetchedCategories)) {
+          setCategories(fetchedCategories);
+          console.log("CategoryFilter - Berhasil mengambil kategori dari API:", fetchedCategories);
+        } else {
+          console.error("Format data kategori tidak valid:", fetchedCategories);
+          setCategories([]);
+          toast({
+            title: "Peringatan",
+            description: "Format data kategori tidak valid",
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       console.error("Error saat mengambil kategori:", error);
@@ -66,7 +75,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     }
   };
 
-  // Fetch categories langsung saat komponen dimuat dengan paksa refresh
+  // Fetch categories langsung saat komponen dimuat
   useEffect(() => {
     console.log("CategoryFilter - Komponen dimuat, memaksa refresh");
     fetchCategories(true);
@@ -81,6 +90,11 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     console.log("Tombol refresh kategori ditekan, memaksa refresh data");
     setRefreshing(true);
     await fetchCategories(true);
+    
+    toast({
+      title: "Berhasil",
+      description: "Data kategori berhasil diperbarui"
+    });
   };
 
   const categoryButtons = (

@@ -35,34 +35,70 @@ const ArticlesPage: React.FC = () => {
       console.log("ArticlePage - Memulai pengambilan artikel, forceRefresh:", forceRefresh);
       console.log("ArticlePage - Parameter:", { page: currentPage, search: searchQuery, category: selectedCategory });
       
-      const response: PaginatedResponse<Article> = await articleService.getArticles(
-        currentPage,
-        searchQuery,
-        selectedCategory,
-        forceRefresh
-      );
+      // Ambil data langsung dari localStorage untuk performa
+      const localArticles = JSON.parse(localStorage.getItem('localArticles') || '[]');
       
-      console.log("ArticlePage - Artikel yang diambil:", response.data);
-      
-      // Pastikan data artikel adalah array
-      if (Array.isArray(response.data)) {
-        setArticles(response.data);
+      if (!forceRefresh && localArticles && Array.isArray(localArticles) && localArticles.length > 0) {
+        // Filter berdasarkan kategori dan pencarian
+        let filteredArticles = localArticles;
+        
+        if (selectedCategory) {
+          filteredArticles = filteredArticles.filter(article => article.category_id === selectedCategory);
+        }
+        
+        if (searchQuery) {
+          filteredArticles = filteredArticles.filter(article => 
+            article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (article.content && article.content.toLowerCase().includes(searchQuery.toLowerCase()))
+          );
+        }
+        
+        console.log("ArticlePage - Filter artikel lokal:", filteredArticles);
+        
+        // Paginate the results
+        const itemsPerPage = 9;
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedArticles = filteredArticles.slice(startIndex, endIndex);
+        
+        setArticles(paginatedArticles);
+        setPagination({
+          current_page: currentPage,
+          total_pages: Math.ceil(filteredArticles.length / itemsPerPage),
+          total: filteredArticles.length,
+          per_page: itemsPerPage
+        });
       } else {
-        console.error("Format data artikel tidak valid:", response.data);
-        setArticles([]);
-        toast({
-          title: "Peringatan",
-          description: "Format data artikel tidak valid",
-          variant: "destructive",
+        // Try to get from API through the service
+        const response: PaginatedResponse<Article> = await articleService.getArticles(
+          currentPage,
+          searchQuery,
+          selectedCategory,
+          forceRefresh
+        );
+        
+        console.log("ArticlePage - Artikel yang diambil:", response.data);
+        
+        // Pastikan data artikel adalah array
+        if (Array.isArray(response.data)) {
+          setArticles(response.data);
+        } else {
+          console.error("Format data artikel tidak valid:", response.data);
+          setArticles([]);
+          toast({
+            title: "Peringatan",
+            description: "Format data artikel tidak valid",
+            variant: "destructive",
+          });
+        }
+        
+        setPagination(response.pagination || {
+          current_page: 1,
+          total_pages: 1,
+          total: 0,
+          per_page: 9,
         });
       }
-      
-      setPagination(response.pagination || {
-        current_page: 1,
-        total_pages: 1,
-        total: 0,
-        per_page: 9,
-      });
     } catch (error) {
       console.error("Error mengambil artikel:", error);
       toast({
@@ -92,18 +128,14 @@ const ArticlesPage: React.FC = () => {
   
   // Re-fetch when search or category changes
   useEffect(() => {
-    if (searchQuery || selectedCategory) {
-      console.log("ArticlePage - Pencarian atau kategori berubah");
-      fetchArticles(false);
-    }
+    console.log("ArticlePage - Pencarian atau kategori berubah");
+    fetchArticles(true); // Force refresh when filters change
   }, [searchQuery, selectedCategory]);
   
   // Re-fetch when page changes
   useEffect(() => {
-    if (currentPage > 1) {
-      console.log("ArticlePage - Halaman berubah:", currentPage);
-      fetchArticles(false);
-    }
+    console.log("ArticlePage - Halaman berubah:", currentPage);
+    fetchArticles(false);
   }, [currentPage]);
 
   const handleCategorySelect = (categoryId: string) => {

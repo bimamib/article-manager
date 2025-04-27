@@ -12,8 +12,9 @@ const getLocalCategories = () => {
   try {
     const savedCategories = localStorage.getItem('localCategories');
     if (savedCategories) {
-      console.log("Berhasil mengambil kategori dari localStorage:", JSON.parse(savedCategories));
-      return JSON.parse(savedCategories);
+      const parsedData = JSON.parse(savedCategories);
+      console.log("Berhasil mengambil kategori dari localStorage:", parsedData);
+      return parsedData;
     } else {
       console.log("Tidak ada kategori di localStorage, menggunakan data dummy");
       return [...dummyData.categories];
@@ -108,6 +109,11 @@ export const categoryService = {
       // Selalu refresh dari localStorage terlebih dahulu
       localCategories = getLocalCategories();
       console.log("getAllCategories - Kategori dari localStorage:", localCategories);
+      
+      if (!forceRefresh && localCategories && localCategories.length > 0) {
+        console.log("getAllCategories - Menggunakan kategori dari cache:", localCategories);
+        return localCategories;
+      }
       
       // Try API call
       const response = await api.get<ApiResponse<PaginatedResponse<Category>>>("/categories?per_page=100");

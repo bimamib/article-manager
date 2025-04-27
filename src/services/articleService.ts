@@ -13,8 +13,9 @@ const getLocalArticles = () => {
   try {
     const savedArticles = localStorage.getItem('localArticles');
     if (savedArticles) {
-      console.log("Berhasil mengambil artikel dari localStorage:", JSON.parse(savedArticles));
-      return JSON.parse(savedArticles);
+      const parsedData = JSON.parse(savedArticles);
+      console.log("Berhasil mengambil artikel dari localStorage:", parsedData);
+      return parsedData;
     } else {
       console.log("Tidak ada artikel di localStorage, menggunakan data dummy");
       return [...dummyData.articles];
@@ -46,37 +47,75 @@ export const articleService = {
     console.log("getArticles - Parameter pencarian:", { page, search, categoryId, forceRefresh });
     
     try {
-      const params = new URLSearchParams();
-      params.append("page", page.toString());
-      if (search) params.append("search", search);
-      if (categoryId) params.append("category_id", categoryId);
-      
-      const response = await api.get<ApiResponse<PaginatedResponse<Article>>>(`/articles?${params.toString()}`);
-      const apiArticles = response.data.data;
-      
-      // If API is successful, update local articles
-      if (apiArticles && apiArticles.data && apiArticles.data.length > 0) {
-        console.log("getArticles - Mengupdate artikel lokal dari API");
-        localArticles = apiArticles.data;
-        saveLocalArticles(localArticles);
+      if (!forceRefresh && localArticles && localArticles.length > 0) {
+        // Use local storage data directly if not forcing refresh
+        console.log("getArticles - Menggunakan data lokal tanpa refresh API");
+      } else {
+        const params = new URLSearchParams();
+        params.append("page", page.toString());
+        if (search) params.append("search", search);
+        if (categoryId) params.append("category_id", categoryId);
+        
+        const response = await api.get<ApiResponse<PaginatedResponse<Article>>>(`/articles?${params.toString()}`);
+        const apiArticles = response.data.data;
+        
+        // If API is successful, update local articles
+        if (apiArticles && apiArticles.data && apiArticles.data.length > 0) {
+          console.log("getArticles - Mengupdate artikel lokal dari API");
+          localArticles = apiArticles.data;
+          saveLocalArticles(localArticles);
+        }
       }
       
-      return response.data.data;
+      // Fallback with local storage data
+      let filteredArticles = localArticles;
+      
+      if (categoryId) {
+        filteredArticles = filteredArticles.filter(article => article.category_id === categoryId);
+      }
+      
+      if (search) {
+        filteredArticles = filteredArticles.filter(article => {
+          return article.title.toLowerCase().includes(search.toLowerCase()) || 
+                (article.content && article.content.toLowerCase().includes(search.toLowerCase()));
+        });
+      }
+      
+      console.log("getArticles - Artikel setelah filter:", filteredArticles);
+      
+      // Mock pagination
+      const itemsPerPage = 9;
+      const startIndex = (page - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const paginatedArticles = filteredArticles.slice(startIndex, endIndex);
+      
+      return {
+        data: paginatedArticles,
+        pagination: {
+          current_page: page,
+          total_pages: Math.ceil(filteredArticles.length / itemsPerPage),
+          total: filteredArticles.length,
+          per_page: itemsPerPage
+        }
+      };
     } catch (error) {
       console.error("Error mengambil artikel:", error);
       
-      // Fallback dengan data lokal yang sudah difilter
-      console.log("getArticles - Menggunakan data lokal dengan filter:", { categoryId, search });
-      const filteredArticles = localArticles.filter(article => {
-        const matchesCategory = categoryId ? article.category_id === categoryId : true;
-        const matchesSearch = search 
-          ? article.title.toLowerCase().includes(search.toLowerCase()) || 
-            (article.content && article.content.toLowerCase().includes(search.toLowerCase()))
-          : true;
-        return matchesCategory && matchesSearch;
-      });
+      // Filter local articles as fallback
+      let filteredArticles = localArticles;
       
-      console.log("getArticles - Artikel yang difilter:", filteredArticles);
+      if (categoryId) {
+        filteredArticles = filteredArticles.filter(article => article.category_id === categoryId);
+      }
+      
+      if (search) {
+        filteredArticles = filteredArticles.filter(article => {
+          return article.title.toLowerCase().includes(search.toLowerCase()) || 
+                (article.content && article.content.toLowerCase().includes(search.toLowerCase()));
+        });
+      }
+      
+      console.log("getArticles - Error, menggunakan data lokal:", filteredArticles);
       
       // Mock pagination
       const itemsPerPage = 9;
@@ -137,7 +176,7 @@ export const articleService = {
       
       // Update local articles storage
       localArticles = getLocalArticles(); // Refresh first
-      localArticles = [...localArticles, newArticle];
+      localArticles = [newArticle, ...localArticles]; // Add to beginning of array
       saveLocalArticles(localArticles);
       console.log("Artikel baru dibuat dan disimpan:", newArticle);
       
@@ -145,11 +184,11 @@ export const articleService = {
     } catch (error) {
       console.error("Error saat membuat artikel:", error);
       
-      // Dapatkan kategori untuk nama kategori
+      // Get the category name
       const categories = await categoryService.getAllCategories();
       const categoryName = categories.find(c => c.id === article.category_id)?.name || "Tanpa Kategori";
       
-      // Fallback with local - simulate article creation
+      // Fallback with local storage - simulate article creation
       const newArticle: Article = {
         id: `new-${Date.now()}`,
         title: article.title,
@@ -161,9 +200,9 @@ export const articleService = {
         updated_at: new Date().toISOString()
       };
       
-      // Add new article to local array
+      // Add new article to beginning of local array
       localArticles = getLocalArticles(); // Refresh first
-      localArticles = [newArticle, ...localArticles]; // Tambahkan di awal array
+      localArticles = [newArticle, ...localArticles]; // Add to beginning of array
       saveLocalArticles(localArticles);
       console.log("Artikel baru dibuat secara lokal:", newArticle);
       
