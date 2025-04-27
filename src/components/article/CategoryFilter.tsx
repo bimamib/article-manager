@@ -14,7 +14,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Filter, X } from "lucide-react";
+import { Filter, X, RefreshCw } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface CategoryFilterProps {
   selectedCategory: string;
@@ -27,31 +28,55 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
 }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
   const isMobile = useIsMobile();
+  const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setIsLoading(true);
-        // Force-refresh categories to ensure we get the latest data
-        const fetchedCategories = await categoryService.getAllCategories(true);
-        console.log("CategoryFilter - Kategori yang diambil:", fetchedCategories);
-        setCategories(Array.isArray(fetchedCategories) ? fetchedCategories : []);
-      } catch (error) {
-        console.error("Error saat mengambil kategori:", error);
-        setCategories([]);
-      } finally {
-        setIsLoading(false);
+  const fetchCategories = async (forceRefresh: boolean = false) => {
+    try {
+      setIsLoading(true);
+      // Force-refresh categories to ensure we get the latest data
+      const fetchedCategories = await categoryService.getAllCategories(forceRefresh);
+      console.log("CategoryFilter - Kategori yang diambil:", fetchedCategories);
+      setCategories(Array.isArray(fetchedCategories) ? fetchedCategories : []);
+      
+      if (Array.isArray(fetchedCategories) && fetchedCategories.length === 0) {
+        console.log("Tidak ada kategori yang ditemukan");
+        toast({
+          title: "Info",
+          description: "Daftar kategori kosong",
+        });
       }
-    };
+    } catch (error) {
+      console.error("Error saat mengambil kategori:", error);
+      toast({
+        title: "Error",
+        description: "Gagal mengambil kategori",
+        variant: "destructive",
+      });
+      setCategories([]);
+    } finally {
+      setIsLoading(false);
+      setRefreshing(false);
+    }
+  };
 
-    fetchCategories();
+  // Fetch categories when component mounts
+  useEffect(() => {
+    console.log("CategoryFilter - Komponen dimuat, memaksa refresh");
+    fetchCategories(true);
   }, []);
 
   const handleCategoryClick = (categoryId: string) => {
     onSelectCategory(categoryId);
     setSheetOpen(false);
+  };
+  
+  const handleRefresh = async () => {
+    console.log("Tombol refresh kategori ditekan, memaksa refresh data");
+    setRefreshing(true);
+    await fetchCategories(true);
   };
 
   // Memastikan categories adalah array sebelum melakukan map
@@ -97,14 +122,24 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
         <SheetContent side="left" className="w-[80vw]">
           <SheetHeader className="mb-4">
             <SheetTitle className="flex items-center justify-between">
-              Kategori
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSheetOpen(false)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              <span>Kategori</span>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleRefresh}
+                  disabled={refreshing}
+                >
+                  <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSheetOpen(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </SheetTitle>
           </SheetHeader>
           <Separator className="mb-4" />
@@ -124,7 +159,17 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
 
   return (
     <div className="w-60 hidden md:block">
-      <div className="font-semibold text-lg mb-4">Kategori</div>
+      <div className="flex items-center justify-between mb-4">
+        <div className="font-semibold text-lg">Kategori</div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleRefresh}
+          disabled={refreshing}
+        >
+          <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+        </Button>
+      </div>
       <Separator className="mb-4" />
       {isLoading ? (
         <div className="flex items-center justify-center h-20">

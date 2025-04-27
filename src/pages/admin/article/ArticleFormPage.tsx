@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -33,10 +32,10 @@ import { categoryService } from "@/services/categoryService";
 import { ArticleFormData, Category } from "@/types";
 
 const formSchema = z.object({
-  title: z.string().min(1, { message: "Title is required" }),
-  content: z.string().min(1, { message: "Content is required" }),
-  image: z.string().min(1, { message: "Image URL is required" }),
-  category_id: z.string().min(1, { message: "Category is required" }),
+  title: z.string().min(1, { message: "Judul wajib diisi" }),
+  content: z.string().min(1, { message: "Konten wajib diisi" }),
+  image: z.string().min(1, { message: "URL Gambar wajib diisi" }),
+  category_id: z.string().min(1, { message: "Kategori wajib dipilih" }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -66,8 +65,10 @@ const ArticleFormPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const categoriesData = await categoryService.getAllCategories();
-        setCategories(categoriesData || []);
+        const categoriesData = await categoryService.getAllCategories(true);
+        console.log("ArticleFormPage - Kategori yang diambil:", categoriesData);
+        
+        setCategories(Array.isArray(categoriesData) ? categoriesData : []);
 
         if (isEditMode && id) {
           const article = await articleService.getArticleById(id);
@@ -84,7 +85,7 @@ const ArticleFormPage = () => {
         console.error("Error fetching data:", error);
         toast({
           title: "Error",
-          description: "Failed to load necessary data",
+          description: "Gagal memuat data yang diperlukan",
           variant: "destructive",
         });
         setCategories([]);
@@ -109,17 +110,17 @@ const ArticleFormPage = () => {
     try {
       if (isEditMode && id) {
         await articleService.updateArticle(id, articleData);
-        toast({ title: "Success", description: "Article updated successfully" });
+        toast({ title: "Berhasil", description: "Artikel berhasil diperbarui" });
       } else {
         await articleService.createArticle(articleData);
-        toast({ title: "Success", description: "Article created successfully" });
+        toast({ title: "Berhasil", description: "Artikel berhasil dibuat" });
       }
       navigate("/admin/articles");
     } catch (error) {
       console.error("Error saving article:", error);
       toast({
         title: "Error",
-        description: `Failed to ${isEditMode ? "update" : "create"} article`,
+        description: `Gagal ${isEditMode ? "memperbarui" : "membuat"} artikel`,
         variant: "destructive",
       });
     } finally {
@@ -244,7 +245,7 @@ const ArticleFormPage = () => {
                               ))
                             ) : (
                               <SelectItem value="no-categories" disabled>
-                                No categories available
+                                Tidak ada kategori tersedia
                               </SelectItem>
                             )}
                           </SelectContent>
