@@ -46,12 +46,14 @@ const CategoryListPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const { toast } = useToast();
   
-  const fetchCategories = async (refresh: boolean = false) => {
+  const fetchCategories = async (forceRefresh: boolean = true) => {
     setIsLoading(true);
     try {
-      // Jika refresh=true, paksa refresh data dari storage
-      if (refresh) {
-        console.log("Memaksa refresh semua kategori");
+      // Selalu paksa refresh data dari storage agar kategori muncul tanpa harus dicari
+      console.log("CategoryListPage - Memulai pengambilan kategori, forceRefresh:", forceRefresh);
+      
+      // Pertama ambil semua kategori untuk memastikan data terbaru
+      if (forceRefresh) {
         await categoryService.getAllCategories(true);
       }
       
@@ -60,7 +62,7 @@ const CategoryListPage: React.FC = () => {
         searchQuery
       );
       
-      console.log("Kategori yang diambil:", response.data);
+      console.log("CategoryListPage - Kategori yang diambil:", response.data);
       
       // Pastikan response.data adalah array sebelum digunakan
       if (Array.isArray(response.data)) {
@@ -68,6 +70,11 @@ const CategoryListPage: React.FC = () => {
       } else {
         console.error("Format data kategori tidak valid:", response.data);
         setCategories([]);
+        toast({
+          title: "Peringatan",
+          description: "Format data kategori tidak valid",
+          variant: "destructive",
+        });
       }
       
       setPagination(response.pagination || {
@@ -105,8 +112,10 @@ const CategoryListPage: React.FC = () => {
   
   // Re-fetch ketika halaman atau pencarian berubah
   useEffect(() => {
-    console.log("CategoryListPage - Halaman atau pencarian berubah");
-    fetchCategories(false);
+    if (searchQuery) {
+      console.log("CategoryListPage - Pencarian berubah:", searchQuery);
+      fetchCategories(false);
+    }
   }, [currentPage, searchQuery]);
   
   const handleSearch = (query: string) => {
@@ -122,27 +131,23 @@ const CategoryListPage: React.FC = () => {
     console.log("Tombol refresh ditekan, memaksa refresh data");
     setRefreshing(true);
     await fetchCategories(true);
+    
+    toast({
+      title: "Berhasil",
+      description: "Data kategori berhasil diperbarui",
+    });
   };
   
   const handleDeleteCategory = async (id: string) => {
     try {
       await categoryService.deleteCategory(id);
-      // Only filter categories if they exist
-      if (categories && categories.length > 0) {
-        setCategories(categories.filter(category => category.id !== id));
-      }
       toast({
         title: "Berhasil",
         description: "Kategori berhasil dihapus",
       });
       
-      // Reload categories if the current page might be empty after deletion
-      if (categories && categories.length === 1 && currentPage > 1) {
-        setCurrentPage(currentPage - 1);
-      } else {
-        // Refresh the list to ensure we have the latest data
-        fetchCategories(true);
-      }
+      // Refresh the list to ensure we have the latest data
+      await fetchCategories(true);
     } catch (error) {
       console.error("Error saat menghapus kategori:", error);
       toast({

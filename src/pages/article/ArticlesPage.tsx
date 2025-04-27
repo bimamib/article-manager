@@ -29,20 +29,34 @@ const ArticlesPage: React.FC = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
 
-  const fetchArticles = async (forceRefresh: boolean = false) => {
+  const fetchArticles = async (forceRefresh: boolean = true) => {
     setIsLoading(true);
     try {
       console.log("ArticlePage - Memulai pengambilan artikel, forceRefresh:", forceRefresh);
+      console.log("ArticlePage - Parameter:", { page: currentPage, search: searchQuery, category: selectedCategory });
+      
       const response: PaginatedResponse<Article> = await articleService.getArticles(
         currentPage,
         searchQuery,
         selectedCategory,
         forceRefresh
       );
-      console.log("Artikel yang diambil:", response.data);
       
-      // Ensure we have a valid array of articles and pagination data
-      setArticles(Array.isArray(response.data) ? response.data : []);
+      console.log("ArticlePage - Artikel yang diambil:", response.data);
+      
+      // Pastikan data artikel adalah array
+      if (Array.isArray(response.data)) {
+        setArticles(response.data);
+      } else {
+        console.error("Format data artikel tidak valid:", response.data);
+        setArticles([]);
+        toast({
+          title: "Peringatan",
+          description: "Format data artikel tidak valid",
+          variant: "destructive",
+        });
+      }
+      
       setPagination(response.pagination || {
         current_page: 1,
         total_pages: 1,
@@ -76,15 +90,24 @@ const ArticlesPage: React.FC = () => {
     fetchArticles(true); // Selalu paksa refresh saat komponen dimuat
   }, []);
   
-  // Re-fetch when page, search or category changes
+  // Re-fetch when search or category changes
   useEffect(() => {
-    if (!isLoading) { // Hanya ambil data jika tidak sedang loading
-      console.log("ArticlePage - Halaman, pencarian, atau kategori berubah");
+    if (searchQuery || selectedCategory) {
+      console.log("ArticlePage - Pencarian atau kategori berubah");
       fetchArticles(false);
     }
-  }, [currentPage, searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory]);
+  
+  // Re-fetch when page changes
+  useEffect(() => {
+    if (currentPage > 1) {
+      console.log("ArticlePage - Halaman berubah:", currentPage);
+      fetchArticles(false);
+    }
+  }, [currentPage]);
 
   const handleCategorySelect = (categoryId: string) => {
+    console.log("ArticlePage - Kategori dipilih:", categoryId);
     setSelectedCategory(categoryId);
     setCurrentPage(1);
   };
@@ -103,6 +126,11 @@ const ArticlesPage: React.FC = () => {
     console.log("Tombol refresh ditekan, memaksa refresh data");
     setRefreshing(true);
     await fetchArticles(true);
+    
+    toast({
+      title: "Berhasil",
+      description: "Data artikel berhasil diperbarui",
+    });
   };
 
   return (

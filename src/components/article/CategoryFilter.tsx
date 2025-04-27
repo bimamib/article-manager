@@ -33,20 +33,23 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   const isMobile = useIsMobile();
   const { toast } = useToast();
 
-  const fetchCategories = async (forceRefresh: boolean = false) => {
+  const fetchCategories = async (forceRefresh: boolean = true) => {
     try {
       setIsLoading(true);
       console.log("CategoryFilter - Memulai pengambilan kategori, forceRefresh:", forceRefresh);
-      // Ambil semua kategori tanpa pagination untuk memastikan semua kategori ditampilkan
+      // Selalu paksa refresh untuk memastikan kategori terbaru ditampilkan
       const fetchedCategories = await categoryService.getAllCategories(forceRefresh);
       console.log("CategoryFilter - Kategori yang diambil:", fetchedCategories);
-      setCategories(Array.isArray(fetchedCategories) ? fetchedCategories : []);
       
-      if (Array.isArray(fetchedCategories) && fetchedCategories.length === 0) {
-        console.log("Tidak ada kategori yang ditemukan");
+      if (Array.isArray(fetchedCategories)) {
+        setCategories(fetchedCategories);
+      } else {
+        console.error("Format data kategori tidak valid:", fetchedCategories);
+        setCategories([]);
         toast({
-          title: "Info",
-          description: "Daftar kategori kosong",
+          title: "Peringatan",
+          description: "Format data kategori tidak valid",
+          variant: "destructive",
         });
       }
     } catch (error) {
@@ -63,10 +66,10 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     }
   };
 
-  // Fetch categories langsung saat komponen dimuat
+  // Fetch categories langsung saat komponen dimuat dengan paksa refresh
   useEffect(() => {
     console.log("CategoryFilter - Komponen dimuat, memaksa refresh");
-    fetchCategories(true); // Selalu paksa refresh saat komponen dimuat
+    fetchCategories(true);
   }, []);
 
   const handleCategoryClick = (categoryId: string) => {
@@ -80,7 +83,6 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     await fetchCategories(true);
   };
 
-  // Memastikan categories adalah array sebelum melakukan map
   const categoryButtons = (
     <div className="space-y-1">
       <Button

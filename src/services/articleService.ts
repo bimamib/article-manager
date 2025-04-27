@@ -6,6 +6,7 @@ import {
   ApiResponse, 
   PaginatedResponse
 } from "@/types";
+import { categoryService } from "@/services/categoryService";
 
 // Initialize local articles from localStorage or fallback to dummy data
 const getLocalArticles = () => {
@@ -39,11 +40,12 @@ let localArticles = getLocalArticles();
 
 export const articleService = {
   async getArticles(page: number = 1, search: string = "", categoryId: string = "", forceRefresh: boolean = false): Promise<PaginatedResponse<Article>> {
+    // Always refresh from localStorage first to get the latest data
+    localArticles = getLocalArticles();
+    console.log("getArticles - Artikel dari localStorage:", localArticles);
+    console.log("getArticles - Parameter pencarian:", { page, search, categoryId, forceRefresh });
+    
     try {
-      // Always refresh from localStorage first
-      localArticles = getLocalArticles();
-      console.log("getArticles - Artikel dari localStorage:", localArticles);
-      
       const params = new URLSearchParams();
       params.append("page", page.toString());
       if (search) params.append("search", search);
@@ -54,25 +56,27 @@ export const articleService = {
       
       // If API is successful, update local articles
       if (apiArticles && apiArticles.data && apiArticles.data.length > 0) {
+        console.log("getArticles - Mengupdate artikel lokal dari API");
         localArticles = apiArticles.data;
         saveLocalArticles(localArticles);
       }
       
       return response.data.data;
     } catch (error) {
-      console.error("Error fetching articles:", error);
+      console.error("Error mengambil artikel:", error);
       
-      // Fallback with local data
+      // Fallback dengan data lokal yang sudah difilter
+      console.log("getArticles - Menggunakan data lokal dengan filter:", { categoryId, search });
       const filteredArticles = localArticles.filter(article => {
         const matchesCategory = categoryId ? article.category_id === categoryId : true;
         const matchesSearch = search 
           ? article.title.toLowerCase().includes(search.toLowerCase()) || 
-            article.content.toLowerCase().includes(search.toLowerCase())
+            (article.content && article.content.toLowerCase().includes(search.toLowerCase()))
           : true;
         return matchesCategory && matchesSearch;
       });
       
-      console.log("Mengembalikan artikel dari localStorage:", filteredArticles);
+      console.log("getArticles - Artikel yang difilter:", filteredArticles);
       
       // Mock pagination
       const itemsPerPage = 9;
@@ -100,7 +104,7 @@ export const articleService = {
       const response = await api.get<ApiResponse<Article>>(`/articles/${id}`);
       return response.data.data;
     } catch (error) {
-      console.error("Error fetching article by ID:", error);
+      console.error("Error mengambil artikel berdasarkan ID:", error);
       
       // Fallback with local data
       const article = localArticles.find(article => article.id === id);
@@ -117,7 +121,7 @@ export const articleService = {
       const response = await api.get<ApiResponse<Article[]>>(`/articles/related/${categoryId}?exclude=${currentArticleId}`);
       return response.data.data;
     } catch (error) {
-      console.error("Error fetching related articles:", error);
+      console.error("Error mengambil artikel terkait:", error);
       
       // Fallback with local data
       return localArticles
@@ -139,7 +143,11 @@ export const articleService = {
       
       return newArticle;
     } catch (error) {
-      console.error("Error creating article:", error);
+      console.error("Error saat membuat artikel:", error);
+      
+      // Dapatkan kategori untuk nama kategori
+      const categories = await categoryService.getAllCategories();
+      const categoryName = categories.find(c => c.id === article.category_id)?.name || "Tanpa Kategori";
       
       // Fallback with local - simulate article creation
       const newArticle: Article = {
@@ -148,14 +156,14 @@ export const articleService = {
         content: article.content,
         image: article.image || "https://picsum.photos/seed/article/800/450",
         category_id: article.category_id,
+        category_name: categoryName,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        category_name: dummyData.categories.find(c => c.id === article.category_id)?.name
+        updated_at: new Date().toISOString()
       };
       
       // Add new article to local array
       localArticles = getLocalArticles(); // Refresh first
-      localArticles = [...localArticles, newArticle];
+      localArticles = [newArticle, ...localArticles]; // Tambahkan di awal array
       saveLocalArticles(localArticles);
       console.log("Artikel baru dibuat secara lokal:", newArticle);
       
@@ -178,20 +186,26 @@ export const articleService = {
       
       return updatedArticle;
     } catch (error) {
-      console.error("Error updating article:", error);
+      console.error("Error saat memperbarui artikel:", error);
+      
+      // Dapatkan kategori untuk nama kategori
+      const categories = await categoryService.getAllCategories();
+      const categoryName = categories.find(c => c.id === article.category_id)?.name || "Tanpa Kategori";
       
       // Fallback with local - simulate article update
       localArticles = getLocalArticles(); // Refresh first
       const oldArticle = localArticles.find(a => a.id === id);
+      if (!oldArticle) throw new Error("Artikel tidak ditemukan");
+      
       const updatedArticle: Article = {
         id,
         title: article.title,
         content: article.content,
         image: article.image || oldArticle?.image || "https://picsum.photos/seed/article/800/450",
         category_id: article.category_id,
+        category_name: categoryName,
         created_at: oldArticle?.created_at || new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        category_name: dummyData.categories.find(c => c.id === article.category_id)?.name
+        updated_at: new Date().toISOString()
       };
       
       localArticles = localArticles.map(item => 
@@ -214,7 +228,7 @@ export const articleService = {
       saveLocalArticles(localArticles);
       console.log("Artikel berhasil dihapus dengan ID:", id);
     } catch (error) {
-      console.error("Error deleting article:", error);
+      console.error("Error saat menghapus artikel:", error);
       
       // Fallback with local - simulate article deletion
       localArticles = getLocalArticles(); // Refresh first

@@ -50,18 +50,34 @@ const ArticleListPage: React.FC = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   
-  const fetchArticles = async (forceRefresh: boolean = false) => {
+  const fetchArticles = async (forceRefresh: boolean = true) => {
     setIsLoading(true);
     try {
       console.log("ArticleListPage - Mengambil artikel, forceRefresh:", forceRefresh);
+      console.log("ArticleListPage - Parameter:", { page: currentPage, search: searchQuery, category: selectedCategory });
+      
       const response: PaginatedResponse<Article> = await articleService.getArticles(
         currentPage,
         searchQuery,
         selectedCategory,
         forceRefresh
       );
+      
       console.log("ArticleListPage - Artikel yang diambil:", response.data);
-      setArticles(response.data || []);
+      
+      // Pastikan data artikel ada dan berbentuk array
+      if (Array.isArray(response.data)) {
+        setArticles(response.data);
+      } else {
+        console.error("Format data artikel tidak valid:", response.data);
+        setArticles([]);
+        toast({
+          title: "Peringatan", 
+          description: "Format data artikel tidak valid",
+          variant: "destructive",
+        });
+      }
+      
       setPagination(response.pagination || {
         current_page: 1,
         total_pages: 1,
@@ -95,11 +111,21 @@ const ArticleListPage: React.FC = () => {
     fetchArticles(true);
   }, []);
   
-  // Re-fetch when page, search or category changes
+  // Re-fetch when search or category changes
   useEffect(() => {
-    console.log("ArticleListPage - Halaman, pencarian, atau kategori berubah");
-    fetchArticles(false);
-  }, [currentPage, searchQuery, selectedCategory]);
+    if (searchQuery || selectedCategory) {
+      console.log("ArticleListPage - Pencarian atau kategori berubah:", { searchQuery, selectedCategory });
+      fetchArticles(false);
+    }
+  }, [searchQuery, selectedCategory]);
+  
+  // Re-fetch when page changes
+  useEffect(() => {
+    if (currentPage > 1) {
+      console.log("ArticleListPage - Halaman berubah:", currentPage);
+      fetchArticles(false);
+    }
+  }, [currentPage]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -107,6 +133,7 @@ const ArticleListPage: React.FC = () => {
   };
 
   const handleCategorySelect = (categoryId: string) => {
+    console.log("ArticleListPage - Kategori dipilih:", categoryId);
     setSelectedCategory(categoryId);
     setCurrentPage(1);
   };
@@ -120,27 +147,23 @@ const ArticleListPage: React.FC = () => {
     console.log("Tombol refresh artikel ditekan, memaksa refresh data");
     setRefreshing(true);
     await fetchArticles(true);
+    
+    toast({
+      title: "Berhasil",
+      description: "Data artikel berhasil diperbarui",
+    });
   };
   
   const handleDeleteArticle = async (id: string) => {
     try {
       await articleService.deleteArticle(id);
-      // Only filter articles if they exist
-      if (articles && articles.length > 0) {
-        setArticles(articles.filter(article => article.id !== id));
-      }
       toast({
         title: "Berhasil",
         description: "Artikel berhasil dihapus",
       });
       
-      // Reload articles if the current page might be empty after deletion
-      if (articles && articles.length === 1 && currentPage > 1) {
-        setCurrentPage(currentPage - 1);
-      } else {
-        // Refresh list after deletion to ensure consistency
-        fetchArticles(true);
-      }
+      // Refresh list after deletion to ensure consistency
+      await fetchArticles(true);
     } catch (error) {
       console.error("Error menghapus artikel:", error);
       toast({

@@ -64,14 +64,24 @@ const ArticleFormPage = () => {
   const { watch } = form;
   const previewData = watch();
 
-  const fetchCategories = async (forceRefresh: boolean = false) => {
+  const fetchCategories = async (forceRefresh: boolean = true) => {
     try {
       console.log("ArticleFormPage - Memulai pengambilan kategori, forceRefresh:", forceRefresh);
       setRefreshingCategories(true);
       const categoriesData = await categoryService.getAllCategories(forceRefresh);
       console.log("ArticleFormPage - Kategori yang diambil:", categoriesData);
       
-      setCategories(Array.isArray(categoriesData) ? categoriesData : []);
+      if (Array.isArray(categoriesData)) {
+        setCategories(categoriesData);
+      } else {
+        console.error("Format data kategori tidak valid:", categoriesData);
+        setCategories([]);
+        toast({
+          title: "Peringatan",
+          description: "Format data kategori tidak valid",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Error saat mengambil kategori:", error);
       toast({
@@ -128,13 +138,21 @@ const ArticleFormPage = () => {
     };
     
     try {
+      console.log("ArticleFormPage - Menyimpan artikel:", articleData);
+      
       if (isEditMode && id) {
         await articleService.updateArticle(id, articleData);
         toast({ title: "Berhasil", description: "Artikel berhasil diperbarui" });
       } else {
         await articleService.createArticle(articleData);
+        
+        // Tambahkan penundaan sebelum navigasi untuk memastikan data tersimpan
         toast({ title: "Berhasil", description: "Artikel berhasil dibuat" });
+        
+        // Berikan waktu untuk menyimpan artikel ke localStorage
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
+      
       navigate("/admin/articles");
     } catch (error) {
       console.error("Error saat menyimpan artikel:", error);
@@ -150,6 +168,10 @@ const ArticleFormPage = () => {
 
   const handleRefreshCategories = async () => {
     await fetchCategories(true);
+    toast({
+      title: "Berhasil",
+      description: "Daftar kategori berhasil diperbarui",
+    });
   };
 
   if (isLoading) {
