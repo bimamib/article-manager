@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -25,7 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Eye, Save } from "lucide-react";
+import { ArrowLeft, Eye, Save, RefreshCw } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { articleService } from "@/services/articleService";
 import { categoryService } from "@/services/categoryService";
@@ -48,6 +49,7 @@ const ArticleFormPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [refreshingCategories, setRefreshingCategories] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -62,14 +64,33 @@ const ArticleFormPage = () => {
   const { watch } = form;
   const previewData = watch();
 
+  const fetchCategories = async (forceRefresh: boolean = false) => {
+    try {
+      console.log("ArticleFormPage - Memulai pengambilan kategori, forceRefresh:", forceRefresh);
+      setRefreshingCategories(true);
+      const categoriesData = await categoryService.getAllCategories(forceRefresh);
+      console.log("ArticleFormPage - Kategori yang diambil:", categoriesData);
+      
+      setCategories(Array.isArray(categoriesData) ? categoriesData : []);
+    } catch (error) {
+      console.error("Error saat mengambil kategori:", error);
+      toast({
+        title: "Error",
+        description: "Gagal memuat kategori",
+        variant: "destructive",
+      });
+      setCategories([]);
+    } finally {
+      setRefreshingCategories(false);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const categoriesData = await categoryService.getAllCategories(true);
-        console.log("ArticleFormPage - Kategori yang diambil:", categoriesData);
+        setIsLoading(true);
+        await fetchCategories(true); // Paksa refresh kategori
         
-        setCategories(Array.isArray(categoriesData) ? categoriesData : []);
-
         if (isEditMode && id) {
           const article = await articleService.getArticleById(id);
           if (article) {
@@ -82,13 +103,12 @@ const ArticleFormPage = () => {
           }
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error saat memuat data:", error);
         toast({
           title: "Error",
           description: "Gagal memuat data yang diperlukan",
           variant: "destructive",
         });
-        setCategories([]);
       } finally {
         setIsLoading(false);
       }
@@ -117,7 +137,7 @@ const ArticleFormPage = () => {
       }
       navigate("/admin/articles");
     } catch (error) {
-      console.error("Error saving article:", error);
+      console.error("Error saat menyimpan artikel:", error);
       toast({
         title: "Error",
         description: `Gagal ${isEditMode ? "memperbarui" : "membuat"} artikel`,
@@ -126,6 +146,10 @@ const ArticleFormPage = () => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleRefreshCategories = async () => {
+    await fetchCategories(true);
   };
 
   if (isLoading) {
@@ -229,7 +253,18 @@ const ArticleFormPage = () => {
                     name="category_id"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Kategori</FormLabel>
+                        <div className="flex items-center justify-between">
+                          <FormLabel>Kategori</FormLabel>
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={handleRefreshCategories}
+                            disabled={refreshingCategories}
+                          >
+                            <RefreshCw className={`h-4 w-4 ${refreshingCategories ? 'animate-spin' : ''}`} />
+                          </Button>
+                        </div>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>

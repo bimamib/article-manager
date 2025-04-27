@@ -32,6 +32,7 @@ const ArticlesPage: React.FC = () => {
   const fetchArticles = async (forceRefresh: boolean = false) => {
     setIsLoading(true);
     try {
+      console.log("ArticlePage - Memulai pengambilan artikel, forceRefresh:", forceRefresh);
       const response: PaginatedResponse<Article> = await articleService.getArticles(
         currentPage,
         searchQuery,
@@ -72,13 +73,15 @@ const ArticlesPage: React.FC = () => {
   // Fetch articles when component mounts with force refresh
   useEffect(() => {
     console.log("ArticlePage - Komponen dimuat, memaksa refresh");
-    fetchArticles(true);
+    fetchArticles(true); // Selalu paksa refresh saat komponen dimuat
   }, []);
   
   // Re-fetch when page, search or category changes
   useEffect(() => {
-    console.log("ArticlePage - Halaman, pencarian, atau kategori berubah");
-    fetchArticles(false);
+    if (!isLoading) { // Hanya ambil data jika tidak sedang loading
+      console.log("ArticlePage - Halaman, pencarian, atau kategori berubah");
+      fetchArticles(false);
+    }
   }, [currentPage, searchQuery, selectedCategory]);
 
   const handleCategorySelect = (categoryId: string) => {

@@ -36,7 +36,8 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   const fetchCategories = async (forceRefresh: boolean = false) => {
     try {
       setIsLoading(true);
-      // Force-refresh categories to ensure we get the latest data
+      console.log("CategoryFilter - Memulai pengambilan kategori, forceRefresh:", forceRefresh);
+      // Ambil semua kategori tanpa pagination untuk memastikan semua kategori ditampilkan
       const fetchedCategories = await categoryService.getAllCategories(forceRefresh);
       console.log("CategoryFilter - Kategori yang diambil:", fetchedCategories);
       setCategories(Array.isArray(fetchedCategories) ? fetchedCategories : []);
@@ -62,10 +63,10 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     }
   };
 
-  // Fetch categories when component mounts
+  // Fetch categories langsung saat komponen dimuat
   useEffect(() => {
     console.log("CategoryFilter - Komponen dimuat, memaksa refresh");
-    fetchCategories(true);
+    fetchCategories(true); // Selalu paksa refresh saat komponen dimuat
   }, []);
 
   const handleCategoryClick = (categoryId: string) => {
