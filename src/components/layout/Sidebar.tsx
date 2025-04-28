@@ -13,11 +13,10 @@ import {
   PanelLeft,
   BookOpen,
   FolderOpenDot,
-  FilePlus,
-  X
+  FilePlus
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Sheet, SheetContent, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NavItemProps {
@@ -111,12 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, setIsOpen }) =
               <div className="font-poppins font-semibold tracking-tight">
                 Articles<span className="text-primary">Hub</span>
               </div>
-              <SheetClose asChild>
-                <Button variant="ghost" size="icon" onClick={closeSidebar}>
-                  <X className="h-5 w-5" />
-                  <span className="sr-only">Close sidebar</span>
-                </Button>
-              </SheetClose>
+              {/* Removed the extra X button here */}
             </div>
             
             <ScrollArea className="flex-1 p-3">

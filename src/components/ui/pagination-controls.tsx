@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { PaginationInfo } from "@/types";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PaginationControlsProps {
   pagination: PaginationInfo;
@@ -16,6 +17,8 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
   onPageChange,
   className,
 }) => {
+  const isMobile = useIsMobile();
+  
   // Return null if pagination is undefined or incomplete
   if (!pagination || pagination.total_pages === undefined || pagination.current_page === undefined) {
     return null;
@@ -66,15 +69,16 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
 
   if (total_pages <= 1) return null;
 
+  const buttonSize = isMobile ? "sm" : "icon";
+
   return (
     <div className={cn("flex items-center justify-center gap-1 mt-6", className)}>
       <div className="flex items-center gap-1">
         <Button
           variant="outline"
-          size="icon"
+          size={buttonSize}
           onClick={() => handlePageChange(1)}
           disabled={current_page === 1}
-          className="hidden sm:flex"
         >
           <ChevronsLeft className="h-4 w-4" />
           <span className="sr-only">First Page</span>
@@ -82,7 +86,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
         
         <Button
           variant="outline"
-          size="icon"
+          size={buttonSize}
           onClick={() => handlePageChange(current_page - 1)}
           disabled={current_page === 1}
         >
@@ -94,7 +98,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
           <Button
             key={page}
             variant={current_page === page ? "default" : "outline"}
-            size="icon"
+            size={buttonSize}
             onClick={() => handlePageChange(page)}
           >
             {page}
@@ -103,7 +107,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
         
         <Button
           variant="outline"
-          size="icon"
+          size={buttonSize}
           onClick={() => handlePageChange(current_page + 1)}
           disabled={current_page === total_pages}
         >
@@ -113,10 +117,9 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
         
         <Button
           variant="outline"
-          size="icon"
+          size={buttonSize}
           onClick={() => handlePageChange(total_pages)}
           disabled={current_page === total_pages}
-          className="hidden sm:flex"
         >
           <ChevronsRight className="h-4 w-4" />
           <span className="sr-only">Last Page</span>
