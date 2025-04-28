@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -65,7 +64,6 @@ const ArticleListPage: React.FC = () => {
       
       console.log("ArticleListPage - Artikel yang diambil:", response.data);
       
-      // Pastikan data artikel ada dan berbentuk array
       if (Array.isArray(response.data)) {
         setArticles(response.data);
       } else {
@@ -79,7 +77,7 @@ const ArticleListPage: React.FC = () => {
       }
       
       setPagination(response.pagination || {
-        current_page: currentPage, // Use currentPage instead of default 1
+        current_page: currentPage,
         total_pages: 1,
         total: 0,
         per_page: 10,
@@ -91,10 +89,9 @@ const ArticleListPage: React.FC = () => {
         description: "Gagal mengambil artikel",
         variant: "destructive",
       });
-      // Set default values on error
       setArticles([]);
       setPagination({
-        current_page: currentPage, // Use currentPage instead of default 1
+        current_page: currentPage,
         total_pages: 1,
         total: 0,
         per_page: 10,
@@ -105,22 +102,19 @@ const ArticleListPage: React.FC = () => {
     }
   };
 
-  // Fetch articles when component mounts with force refresh
   useEffect(() => {
     console.log("ArticleListPage - Komponen dimuat, memaksa refresh");
     fetchArticles(true);
   }, []);
   
-  // Re-fetch when search or category changes
   useEffect(() => {
     if (searchQuery || selectedCategory) {
       console.log("ArticleListPage - Pencarian atau kategori berubah:", { searchQuery, selectedCategory });
-      setCurrentPage(1); // Reset page to 1 when filters change
+      setCurrentPage(1);
       fetchArticles(true);
     }
   }, [searchQuery, selectedCategory]);
   
-  // Re-fetch when page changes
   useEffect(() => {
     console.log("ArticleListPage - Halaman berubah:", currentPage);
     fetchArticles(false);
@@ -160,7 +154,6 @@ const ArticleListPage: React.FC = () => {
         description: "Artikel berhasil dihapus",
       });
       
-      // Refresh list after deletion to ensure consistency
       await fetchArticles(true);
     } catch (error) {
       console.error("Error menghapus artikel:", error);
@@ -214,14 +207,14 @@ const ArticleListPage: React.FC = () => {
           ) : !articles || articles.length === 0 ? (
             <Empty message="Tidak ada artikel yang ditemukan" />
           ) : (
-            <div className="bg-card border rounded-md">
+            <div className="bg-card border rounded-md overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Judul</TableHead>
-                    <TableHead>Kategori</TableHead>
-                    <TableHead className="hidden md:table-cell">Dibuat</TableHead>
-                    <TableHead className="w-[150px]">Aksi</TableHead>
+                    <TableHead className="w-[40%]">Judul</TableHead>
+                    <TableHead className="w-[25%]">Kategori</TableHead>
+                    <TableHead className="hidden md:table-cell w-[25%]">Dibuat</TableHead>
+                    <TableHead className="w-[10%] text-right">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -230,54 +223,56 @@ const ArticleListPage: React.FC = () => {
                       <TableCell className="font-medium">{article.title}</TableCell>
                       <TableCell>{article.category_name || "Tanpa Kategori"}</TableCell>
                       <TableCell className="hidden md:table-cell">{formatDate(article.created_at)}</TableCell>
-                      <TableCell className="space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          asChild
-                        >
-                          <Link to={`/articles/${article.id}`} target="_blank">
-                            <Eye className="h-4 w-4" />
-                            <span className="sr-only">Lihat</span>
-                          </Link>
-                        </Button>
-                        
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          asChild
-                        >
-                          <Link to={`/admin/articles/edit/${article.id}`}>
-                            <Edit className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
-                          </Link>
-                        </Button>
-                        
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <Trash className="h-4 w-4" />
-                              <span className="sr-only">Hapus</span>
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Hapus Artikel</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Apakah Anda yakin ingin menghapus artikel ini? Tindakan ini tidak dapat dibatalkan.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Batal</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDeleteArticle(article.id)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              >
-                                Hapus
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                      <TableCell>
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            asChild
+                          >
+                            <Link to={`/articles/${article.id}`} target="_blank">
+                              <Eye className="h-4 w-4" />
+                              <span className="sr-only">Lihat</span>
+                            </Link>
+                          </Button>
+                          
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            asChild
+                          >
+                            <Link to={`/admin/articles/edit/${article.id}`}>
+                              <Edit className="h-4 w-4" />
+                              <span className="sr-only">Edit</span>
+                            </Link>
+                          </Button>
+                          
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <Trash className="h-4 w-4" />
+                                <span className="sr-only">Hapus</span>
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Hapus Artikel</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Apakah Anda yakin ingin menghapus artikel ini? Tindakan ini tidak dapat dibatalkan.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Batal</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteArticle(article.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Hapus
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

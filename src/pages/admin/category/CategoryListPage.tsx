@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -49,14 +48,11 @@ const CategoryListPage: React.FC = () => {
   const fetchCategories = async (forceRefresh: boolean = true) => {
     setIsLoading(true);
     try {
-      // Memaksa refresh data dari storage
       console.log("CategoryListPage - Memulai pengambilan kategori, forceRefresh:", forceRefresh);
       
-      // Pertama ambil semua kategori untuk memastikan data terbaru
       const allCategories = await categoryService.getAllCategories(forceRefresh);
       console.log("CategoryListPage - Semua kategori yang diambil:", allCategories);
       
-      // Gunakan data semua kategori langsung
       const itemsPerPage = 10;
       const startIndex = (currentPage - 1) * itemsPerPage;
       const endIndex = startIndex + itemsPerPage;
@@ -84,10 +80,9 @@ const CategoryListPage: React.FC = () => {
         description: "Gagal mengambil data kategori",
         variant: "destructive",
       });
-      // Set default values on error
       setCategories([]);
       setPagination({
-        current_page: currentPage, // Gunakan currentPage yang ada
+        current_page: currentPage,
         total_pages: 1,
         total: 0,
         per_page: 10,
@@ -98,30 +93,26 @@ const CategoryListPage: React.FC = () => {
     }
   };
   
-  // Paksa refresh ketika komponen dimuat
   useEffect(() => {
     console.log("CategoryListPage - Komponen dimuat, memaksa refresh");
     fetchCategories(true);
   }, []);
   
-  // Re-fetch ketika halaman berubah
   useEffect(() => {
     console.log("CategoryListPage - Halaman berubah:", currentPage);
     fetchCategories(false);
   }, [currentPage]);
 
-  // Re-fetch ketika pencarian berubah (tetapi reset ke halaman 1)
   useEffect(() => {
     if (searchQuery !== "") {
       console.log("CategoryListPage - Pencarian berubah:", searchQuery);
-      setCurrentPage(1); // Reset halaman ke 1 ketika filter berubah
+      setCurrentPage(1);
       fetchCategories(false);
     }
   }, [searchQuery]);
   
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    // Tidak perlu lagi mengatur currentPage di sini karena sudah di-handle dalam useEffect
   };
 
   const handlePageChange = (page: number) => {
@@ -148,7 +139,6 @@ const CategoryListPage: React.FC = () => {
         description: "Kategori berhasil dihapus",
       });
       
-      // Refresh the list to ensure we have the latest data
       await fetchCategories(true);
     } catch (error) {
       console.error("Error saat menghapus kategori:", error);
@@ -200,14 +190,14 @@ const CategoryListPage: React.FC = () => {
       ) : categories.length === 0 ? (
         <Empty message="Tidak ada kategori ditemukan" />
       ) : (
-        <div className="bg-card border rounded-md">
+        <div className="bg-card border rounded-md overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nama</TableHead>
-                <TableHead>Dibuat</TableHead>
-                <TableHead>Diperbarui</TableHead>
-                <TableHead className="w-[100px]">Aksi</TableHead>
+                <TableHead className="w-[30%]">Nama</TableHead>
+                <TableHead className="w-[30%]">Dibuat</TableHead>
+                <TableHead className="w-[30%]">Diperbarui</TableHead>
+                <TableHead className="w-[10%] text-right">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -216,43 +206,45 @@ const CategoryListPage: React.FC = () => {
                   <TableCell className="font-medium">{category.name}</TableCell>
                   <TableCell>{formatDate(category.created_at)}</TableCell>
                   <TableCell>{formatDate(category.updated_at)}</TableCell>
-                  <TableCell className="space-x-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      asChild
-                    >
-                      <Link to={`/admin/categories/edit/${category.id}`}>
-                        <Edit className="h-4 w-4" />
-                        <span className="sr-only">Edit</span>
-                      </Link>
-                    </Button>
-                    
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <Trash className="h-4 w-4" />
-                          <span className="sr-only">Hapus</span>
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Hapus Kategori</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Apakah Anda yakin ingin menghapus kategori "{category.name}"? Tindakan ini tidak dapat dibatalkan.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Batal</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDeleteCategory(category.id)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          >
-                            Hapus
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                  <TableCell>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        asChild
+                      >
+                        <Link to={`/admin/categories/edit/${category.id}`}>
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Link>
+                      </Button>
+                      
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <Trash className="h-4 w-4" />
+                            <span className="sr-only">Hapus</span>
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Hapus Kategori</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Apakah Anda yakin ingin menghapus kategori "{category.name}"? Tindakan ini tidak dapat dibatalkan.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Batal</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteCategory(category.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Hapus
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
