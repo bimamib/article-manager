@@ -20,6 +20,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NavbarProps {
   toggleSidebar?: () => void;
@@ -27,14 +28,17 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
   const { user, logout, isAdmin } = useAuth();
+  const isMobile = useIsMobile();
   
   return (
     <header className="h-16 border-b bg-background px-4 flex items-center justify-between sticky top-0 z-30">
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleSidebar}>
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle menu</span>
-        </Button>
+        {isMobile && (
+          <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle menu</span>
+          </Button>
+        )}
         <Link to="/" className="flex items-center gap-2">
           <div className="font-poppins font-semibold text-xl tracking-tight">
             Articles<span className="text-primary">Hub</span>

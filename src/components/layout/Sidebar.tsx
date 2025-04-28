@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -16,71 +16,134 @@ import {
   FilePlus
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NavItemProps {
   to: string;
   icon: React.ElementType;
   label: string;
   isActive?: boolean;
+  onClick?: () => void;
 }
 
-const NavItem: React.FC<NavItemProps> = ({ to, icon: Icon, label, isActive }) => {
+const NavItem: React.FC<NavItemProps> = ({ to, icon: Icon, label, isActive, onClick }) => {
   return (
-    <NavLink to={to} className={({ isActive }) => cn(
-      "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
-      isActive ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground"
-    )}>
+    <NavLink 
+      to={to} 
+      onClick={onClick}
+      className={({ isActive }) => cn(
+        "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+        isActive ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground"
+      )}
+    >
       <Icon className="h-4 w-4" />
       <span>{label}</span>
     </NavLink>
   );
 };
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isOpen?: boolean;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false }) => {
   const { isAdmin } = useAuth();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = React.useState(false);
+  const isMobile = useIsMobile();
   
-  return (
-    <aside className={cn(
-      "border-r bg-background transition-all duration-300 ease-in-out",
-      collapsed ? "w-16" : "w-64"
-    )}>
-      <div className="flex flex-col h-screen">
-        <div className="h-16 border-b flex items-center justify-between px-4">
-          {!collapsed && (
-            <div className="font-poppins font-semibold tracking-tight">
-              Articles<span className="text-primary">Hub</span>
-            </div>
-          )}
-          <Button variant="ghost" size="icon" onClick={() => setCollapsed(!collapsed)}>
-            <PanelLeft className="h-5 w-5" />
-            <span className="sr-only">Toggle sidebar</span>
-          </Button>
+  // Close sidebar handler for mobile
+  const closeSidebar = () => {
+    // This function will be passed to each NavItem for mobile view
+  };
+  
+  // For desktop sidebar
+  const renderSidebarContent = () => (
+    <div className="flex flex-col h-screen">
+      <div className="h-16 border-b flex items-center justify-between px-4">
+        {!collapsed && (
+          <div className="font-poppins font-semibold tracking-tight">
+            Articles<span className="text-primary">Hub</span>
+          </div>
+        )}
+        <Button variant="ghost" size="icon" onClick={() => setCollapsed(!collapsed)}>
+          <PanelLeft className="h-5 w-5" />
+          <span className="sr-only">Toggle sidebar</span>
+        </Button>
+      </div>
+      
+      <ScrollArea className="flex-1 p-3">
+        <div className="space-y-1">
+          <NavItem to="/articles" icon={Home} label={collapsed ? "" : "Home"} />
+          <NavItem to="/articles/explore" icon={BookOpen} label={collapsed ? "" : "Explore"} />
         </div>
         
-        <ScrollArea className="flex-1 p-3">
-          <div className="space-y-1">
-            <NavItem to="/articles" icon={Home} label={collapsed ? "" : "Home"} />
-            <NavItem to="/articles/explore" icon={BookOpen} label={collapsed ? "" : "Explore"} />
-          </div>
-          
-          {isAdmin && (
-            <>
-              <Separator className="my-3" />
-              <div className="text-xs font-medium text-muted-foreground mb-2 px-3">
-                {collapsed ? "" : "Admin"}
+        {isAdmin && (
+          <>
+            <Separator className="my-3" />
+            <div className="text-xs font-medium text-muted-foreground mb-2 px-3">
+              {collapsed ? "" : "Admin"}
+            </div>
+            <div className="space-y-1">
+              <NavItem to="/admin/categories" icon={FolderOpenDot} label={collapsed ? "" : "Categories"} />
+              <NavItem to="/admin/articles" icon={FileText} label={collapsed ? "" : "Articles"} />
+              <NavItem to="/admin/articles/create" icon={FilePlus} label={collapsed ? "" : "Create Article"} />
+              <NavItem to="/admin/users" icon={Users} label={collapsed ? "" : "Users"} />
+              <NavItem to="/admin/settings" icon={Settings} label={collapsed ? "" : "Settings"} />
+            </div>
+          </>
+        )}
+      </ScrollArea>
+    </div>
+  );
+
+  // For mobile view, use the Sheet component
+  if (isMobile) {
+    return (
+      <Sheet open={isOpen}>
+        <SheetContent side="left" className="p-0 w-[250px] max-w-[250px]">
+          <div className="flex flex-col h-full">
+            <div className="h-16 border-b flex items-center px-4">
+              <div className="font-poppins font-semibold tracking-tight">
+                Articles<span className="text-primary">Hub</span>
               </div>
+            </div>
+            
+            <ScrollArea className="flex-1 p-3">
               <div className="space-y-1">
-                <NavItem to="/admin/categories" icon={FolderOpenDot} label={collapsed ? "" : "Categories"} />
-                <NavItem to="/admin/articles" icon={FileText} label={collapsed ? "" : "Articles"} />
-                <NavItem to="/admin/articles/create" icon={FilePlus} label={collapsed ? "" : "Create Article"} />
-                <NavItem to="/admin/users" icon={Users} label={collapsed ? "" : "Users"} />
-                <NavItem to="/admin/settings" icon={Settings} label={collapsed ? "" : "Settings"} />
+                <NavItem to="/articles" icon={Home} label="Home" onClick={closeSidebar} />
+                <NavItem to="/articles/explore" icon={BookOpen} label="Explore" onClick={closeSidebar} />
               </div>
-            </>
-          )}
-        </ScrollArea>
-      </div>
+              
+              {isAdmin && (
+                <>
+                  <Separator className="my-3" />
+                  <div className="text-xs font-medium text-muted-foreground mb-2 px-3">
+                    Admin
+                  </div>
+                  <div className="space-y-1">
+                    <NavItem to="/admin/categories" icon={FolderOpenDot} label="Categories" onClick={closeSidebar} />
+                    <NavItem to="/admin/articles" icon={FileText} label="Articles" onClick={closeSidebar} />
+                    <NavItem to="/admin/articles/create" icon={FilePlus} label="Create Article" onClick={closeSidebar} />
+                    <NavItem to="/admin/users" icon={Users} label="Users" onClick={closeSidebar} />
+                    <NavItem to="/admin/settings" icon={Settings} label="Settings" onClick={closeSidebar} />
+                  </div>
+                </>
+              )}
+            </ScrollArea>
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  // For desktop view
+  return (
+    <aside className={cn(
+      "border-r bg-background transition-all duration-300 ease-in-out hidden md:block",
+      collapsed ? "w-16" : "w-64"
+    )}>
+      {renderSidebarContent()}
     </aside>
   );
 };
