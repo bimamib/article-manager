@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,15 +16,18 @@ import {
 } from "@/components/ui/sheet";
 import { Filter, X, RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
 
 interface CategoryFilterProps {
   selectedCategory: string;
   onSelectCategory: (categoryId: string) => void;
+  className?: string;
 }
 
 export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   selectedCategory,
   onSelectCategory,
+  className,
 }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -131,7 +135,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     return (
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetTrigger asChild>
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button variant="outline" className={cn("flex items-center gap-2", className)}>
             <Filter className="h-4 w-4" />
             <span>Filter</span>
           </Button>
@@ -175,7 +179,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   }
 
   return (
-    <div className="w-60 hidden md:block">
+    <div className={cn("w-60 hidden md:block", className)}>
       <div className="flex items-center justify-between mb-4">
         <div className="font-semibold text-lg">Kategori</div>
         <Button
