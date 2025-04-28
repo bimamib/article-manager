@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -152,7 +153,7 @@ const CategoryListPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Kategori</h1>
           <p className="text-muted-foreground">
@@ -164,11 +165,12 @@ const CategoryListPage: React.FC = () => {
             variant="outline" 
             onClick={handleRefresh}
             disabled={refreshing}
+            className="w-full sm:w-auto"
           >
             <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             {refreshing ? 'Memperbarui...' : 'Refresh'}
           </Button>
-          <Button asChild>
+          <Button asChild className="w-full sm:w-auto">
             <Link to="/admin/categories/create">
               <PlusCircle className="mr-2 h-4 w-4" />
               Kategori Baru
@@ -181,7 +183,7 @@ const CategoryListPage: React.FC = () => {
         <SearchBar
           onSearch={handleSearch}
           placeholder="Cari kategori..."
-          className="max-w-md"
+          className="w-full"
         />
       </div>
       
@@ -190,71 +192,74 @@ const CategoryListPage: React.FC = () => {
       ) : categories.length === 0 ? (
         <Empty message="Tidak ada kategori ditemukan" />
       ) : (
-        <div className="bg-card border rounded-md overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[30%]">Nama</TableHead>
-                <TableHead className="w-[30%]">Dibuat</TableHead>
-                <TableHead className="w-[30%]">Diperbarui</TableHead>
-                <TableHead className="w-[10%] text-right">Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {categories.map((category) => (
-                <TableRow key={category.id}>
-                  <TableCell className="font-medium">{category.name}</TableCell>
-                  <TableCell>{formatDate(category.created_at)}</TableCell>
-                  <TableCell>{formatDate(category.updated_at)}</TableCell>
-                  <TableCell>
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        asChild
-                      >
-                        <Link to={`/admin/categories/edit/${category.id}`}>
-                          <Edit className="h-4 w-4" />
-                          <span className="sr-only">Edit</span>
-                        </Link>
-                      </Button>
-                      
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <Trash className="h-4 w-4" />
-                            <span className="sr-only">Hapus</span>
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Hapus Kategori</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Apakah Anda yakin ingin menghapus kategori "{category.name}"? Tindakan ini tidak dapat dibatalkan.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Batal</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDeleteCategory(category.id)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              Hapus
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
+        <div className="bg-card border rounded-md overflow-hidden">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[30%]">Nama</TableHead>
+                  <TableHead className="w-[30%] hidden sm:table-cell">Dibuat</TableHead>
+                  <TableHead className="w-[30%] hidden sm:table-cell">Diperbarui</TableHead>
+                  <TableHead className="text-right">Aksi</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          
-          <div className="p-4">
+              </TableHeader>
+              <TableBody>
+                {categories.map((category) => (
+                  <TableRow key={category.id}>
+                    <TableCell className="font-medium">{category.name}</TableCell>
+                    <TableCell className="hidden sm:table-cell">{formatDate(category.created_at)}</TableCell>
+                    <TableCell className="hidden sm:table-cell">{formatDate(category.updated_at)}</TableCell>
+                    <TableCell className="text-right p-0 pr-2">
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          asChild
+                          className="h-8 w-8"
+                        >
+                          <Link to={`/admin/categories/edit/${category.id}`}>
+                            <Edit className="h-4 w-4" />
+                            <span className="sr-only">Edit</span>
+                          </Link>
+                        </Button>
+                        
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Trash className="h-4 w-4" />
+                              <span className="sr-only">Hapus</span>
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Hapus Kategori</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Apakah Anda yakin ingin menghapus kategori "{category.name}"? Tindakan ini tidak dapat dibatalkan.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteCategory(category.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Hapus
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="p-4 border-t">
             <PaginationControls
               pagination={pagination}
               onPageChange={handlePageChange}
+              className="w-full"
             />
           </div>
         </div>

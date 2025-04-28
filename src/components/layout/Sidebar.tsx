@@ -13,10 +13,11 @@ import {
   PanelLeft,
   BookOpen,
   FolderOpenDot,
-  FilePlus
+  FilePlus,
+  X
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetClose } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NavItemProps {
@@ -45,16 +46,19 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon: Icon, label, isActive, onCl
 
 interface SidebarProps {
   isOpen?: boolean;
+  setIsOpen?: (open: boolean) => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, setIsOpen }) => {
   const { isAdmin } = useAuth();
   const [collapsed, setCollapsed] = React.useState(false);
   const isMobile = useIsMobile();
   
   // Close sidebar handler for mobile
   const closeSidebar = () => {
-    // This function will be passed to each NavItem for mobile view
+    if (setIsOpen) {
+      setIsOpen(false);
+    }
   };
   
   // For desktop sidebar
@@ -100,13 +104,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false }) => {
   // For mobile view, use the Sheet component
   if (isMobile) {
     return (
-      <Sheet open={isOpen}>
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent side="left" className="p-0 w-[250px] max-w-[250px]">
           <div className="flex flex-col h-full">
-            <div className="h-16 border-b flex items-center px-4">
+            <div className="h-16 border-b flex items-center justify-between px-4">
               <div className="font-poppins font-semibold tracking-tight">
                 Articles<span className="text-primary">Hub</span>
               </div>
+              <SheetClose asChild>
+                <Button variant="ghost" size="icon" onClick={closeSidebar}>
+                  <X className="h-5 w-5" />
+                  <span className="sr-only">Close sidebar</span>
+                </Button>
+              </SheetClose>
             </div>
             
             <ScrollArea className="flex-1 p-3">

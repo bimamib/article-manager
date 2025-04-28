@@ -34,7 +34,7 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
     <header className="h-16 border-b bg-background px-4 flex items-center justify-between sticky top-0 z-30">
       <div className="flex items-center gap-2">
         {isMobile && (
-          <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+          <Button variant="ghost" size="icon" onClick={toggleSidebar} className="relative z-10">
             <Menu className="h-5 w-5" />
             <span className="sr-only">Toggle menu</span>
           </Button>

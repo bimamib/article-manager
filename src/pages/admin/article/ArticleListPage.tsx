@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -167,7 +168,7 @@ const ArticleListPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Artikel</h1>
           <p className="text-muted-foreground">
@@ -175,11 +176,11 @@ const ArticleListPage: React.FC = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleRefresh} disabled={refreshing}>
+          <Button variant="outline" onClick={handleRefresh} disabled={refreshing} className="w-full sm:w-auto">
             <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             {refreshing ? 'Memuat...' : 'Refresh'}
           </Button>
-          <Button asChild>
+          <Button asChild className="w-full sm:w-auto">
             <Link to="/admin/articles/create">
               <PlusCircle className="mr-2 h-4 w-4" />
               Artikel Baru
@@ -188,16 +189,17 @@ const ArticleListPage: React.FC = () => {
         </div>
       </div>
       
-      <div className="flex flex-col md:flex-row gap-6 mb-6">
-        <div className={`${isMobile ? "w-full" : "w-60"}`}>
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="w-full sm:w-60">
           <SearchBar
             onSearch={handleSearch}
             placeholder="Cari artikel..."
-            className="mb-4"
+            className="mb-4 w-full"
           />
           <CategoryFilter
             selectedCategory={selectedCategory}
             onSelectCategory={handleCategorySelect}
+            className="w-full"
           />
         </div>
         
@@ -207,82 +209,87 @@ const ArticleListPage: React.FC = () => {
           ) : !articles || articles.length === 0 ? (
             <Empty message="Tidak ada artikel yang ditemukan" />
           ) : (
-            <div className="bg-card border rounded-md overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[40%]">Judul</TableHead>
-                    <TableHead className="w-[25%]">Kategori</TableHead>
-                    <TableHead className="hidden md:table-cell w-[25%]">Dibuat</TableHead>
-                    <TableHead className="w-[10%] text-right">Aksi</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {articles.map((article) => (
-                    <TableRow key={article.id}>
-                      <TableCell className="font-medium">{article.title}</TableCell>
-                      <TableCell>{article.category_name || "Tanpa Kategori"}</TableCell>
-                      <TableCell className="hidden md:table-cell">{formatDate(article.created_at)}</TableCell>
-                      <TableCell>
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            asChild
-                          >
-                            <Link to={`/articles/${article.id}`} target="_blank">
-                              <Eye className="h-4 w-4" />
-                              <span className="sr-only">Lihat</span>
-                            </Link>
-                          </Button>
-                          
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            asChild
-                          >
-                            <Link to={`/admin/articles/edit/${article.id}`}>
-                              <Edit className="h-4 w-4" />
-                              <span className="sr-only">Edit</span>
-                            </Link>
-                          </Button>
-                          
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <Trash className="h-4 w-4" />
-                                <span className="sr-only">Hapus</span>
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Hapus Artikel</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Apakah Anda yakin ingin menghapus artikel ini? Tindakan ini tidak dapat dibatalkan.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => handleDeleteArticle(article.id)}
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                >
-                                  Hapus
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </TableCell>
+            <div className="bg-card border rounded-md overflow-hidden">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[40%]">Judul</TableHead>
+                      <TableHead className="w-[25%]">Kategori</TableHead>
+                      <TableHead className="hidden sm:table-cell w-[25%]">Dibuat</TableHead>
+                      <TableHead className="text-right">Aksi</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {articles.map((article) => (
+                      <TableRow key={article.id}>
+                        <TableCell className="font-medium">{article.title}</TableCell>
+                        <TableCell>{article.category_name || "Tanpa Kategori"}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{formatDate(article.created_at)}</TableCell>
+                        <TableCell className="text-right p-0 pr-2">
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              asChild
+                              className="h-8 w-8"
+                            >
+                              <Link to={`/articles/${article.id}`} target="_blank">
+                                <Eye className="h-4 w-4" />
+                                <span className="sr-only">Lihat</span>
+                              </Link>
+                            </Button>
+                            
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              asChild
+                              className="h-8 w-8"
+                            >
+                              <Link to={`/admin/articles/edit/${article.id}`}>
+                                <Edit className="h-4 w-4" />
+                                <span className="sr-only">Edit</span>
+                              </Link>
+                            </Button>
+                            
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                  <Trash className="h-4 w-4" />
+                                  <span className="sr-only">Hapus</span>
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Hapus Artikel</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Apakah Anda yakin ingin menghapus artikel ini? Tindakan ini tidak dapat dibatalkan.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleDeleteArticle(article.id)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    Hapus
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
               
-              <div className="p-4">
+              <div className="p-4 border-t">
                 <PaginationControls
                   pagination={pagination}
                   onPageChange={handlePageChange}
+                  className="w-full"
                 />
               </div>
             </div>
