@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -52,7 +53,7 @@ const CategoryListPage: React.FC = () => {
       console.log("CategoryListPage - Memulai pengambilan kategori, forceRefresh:", forceRefresh);
       
       // Pertama ambil semua kategori untuk memastikan data terbaru
-      const allCategories = await categoryService.getAllCategories(true);
+      const allCategories = await categoryService.getAllCategories(forceRefresh);
       console.log("CategoryListPage - Semua kategori yang diambil:", allCategories);
       
       // Gunakan data semua kategori langsung
@@ -86,7 +87,7 @@ const CategoryListPage: React.FC = () => {
       // Set default values on error
       setCategories([]);
       setPagination({
-        current_page: 1,
+        current_page: currentPage, // Gunakan currentPage yang ada
         total_pages: 1,
         total: 0,
         per_page: 10,
@@ -103,18 +104,28 @@ const CategoryListPage: React.FC = () => {
     fetchCategories(true);
   }, []);
   
-  // Re-fetch ketika halaman atau pencarian berubah
+  // Re-fetch ketika halaman berubah
   useEffect(() => {
-    console.log("CategoryListPage - Halaman atau pencarian berubah:", { currentPage, searchQuery });
+    console.log("CategoryListPage - Halaman berubah:", currentPage);
     fetchCategories(false);
-  }, [currentPage, searchQuery]);
+  }, [currentPage]);
+
+  // Re-fetch ketika pencarian berubah (tetapi reset ke halaman 1)
+  useEffect(() => {
+    if (searchQuery !== "") {
+      console.log("CategoryListPage - Pencarian berubah:", searchQuery);
+      setCurrentPage(1); // Reset halaman ke 1 ketika filter berubah
+      fetchCategories(false);
+    }
+  }, [searchQuery]);
   
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setCurrentPage(1);
+    // Tidak perlu lagi mengatur currentPage di sini karena sudah di-handle dalam useEffect
   };
 
   const handlePageChange = (page: number) => {
+    console.log("CategoryListPage - handlePageChange dipanggil dengan halaman:", page);
     setCurrentPage(page);
   };
   
