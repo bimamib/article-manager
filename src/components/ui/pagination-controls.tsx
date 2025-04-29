@@ -69,7 +69,11 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
 
   if (total_pages <= 1) return null;
 
-  const buttonSize = isMobile ? "sm" : "icon";
+  // Use 'xs' for mobile to make buttons smaller
+  const buttonSize = isMobile ? "xs" : "icon";
+  
+  // Use a consistent button class for mobile to ensure same size
+  const mobileButtonClass = isMobile ? "!h-7 !w-7 min-w-7 p-0" : "";
 
   return (
     <div className={cn("flex items-center justify-center gap-1 mt-6", className)}>
@@ -79,8 +83,9 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
           size={buttonSize}
           onClick={() => handlePageChange(1)}
           disabled={current_page === 1}
+          className={mobileButtonClass}
         >
-          <ChevronsLeft className="h-4 w-4" />
+          <ChevronsLeft className="h-3 w-3" />
           <span className="sr-only">First Page</span>
         </Button>
         
@@ -89,8 +94,9 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
           size={buttonSize}
           onClick={() => handlePageChange(current_page - 1)}
           disabled={current_page === 1}
+          className={mobileButtonClass}
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-3 w-3" />
           <span className="sr-only">Previous Page</span>
         </Button>
         
@@ -100,6 +106,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
             variant={current_page === page ? "default" : "outline"}
             size={buttonSize}
             onClick={() => handlePageChange(page)}
+            className={cn(mobileButtonClass, "font-medium")}
           >
             {page}
           </Button>
@@ -110,8 +117,9 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
           size={buttonSize}
           onClick={() => handlePageChange(current_page + 1)}
           disabled={current_page === total_pages}
+          className={mobileButtonClass}
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-3 w-3" />
           <span className="sr-only">Next Page</span>
         </Button>
         
@@ -120,8 +128,9 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
           size={buttonSize}
           onClick={() => handlePageChange(total_pages)}
           disabled={current_page === total_pages}
+          className={mobileButtonClass}
         >
-          <ChevronsRight className="h-4 w-4" />
+          <ChevronsRight className="h-3 w-3" />
           <span className="sr-only">Last Page</span>
         </Button>
       </div>
