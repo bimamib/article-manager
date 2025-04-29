@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -21,12 +20,12 @@ const ArticleDetailPage: React.FC = () => {
   useEffect(() => {
     const fetchArticleData = async () => {
       if (!id) return;
-      
+
       setIsLoading(true);
       try {
         const fetchedArticle = await articleService.getArticleById(id);
         setArticle(fetchedArticle);
-        
+
         // Fetch related articles
         const fetchedRelatedArticles = await articleService.getRelatedArticles(
           fetchedArticle.category_id,
@@ -44,7 +43,11 @@ const ArticleDetailPage: React.FC = () => {
   }, [id]);
 
   if (isLoading) {
-    return <Layout><Loading /></Layout>;
+    return (
+      <Layout>
+        <Loading />
+      </Layout>
+    );
   }
 
   if (!article) {
@@ -68,12 +71,7 @@ const ArticleDetailPage: React.FC = () => {
 
   return (
     <Layout>
-      <Button
-        variant="outline"
-        size="sm"
-        className="mb-6"
-        asChild
-      >
+      <Button variant="outline" size="sm" className="mb-6" asChild>
         <Link to="/articles">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Articles
@@ -99,9 +97,11 @@ const ArticleDetailPage: React.FC = () => {
               {formatDate(article.created_at)}
             </div>
           </div>
-          
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">{article.title}</h1>
-          
+
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">
+            {article.title}
+          </h1>
+
           <div className="flex items-center text-muted-foreground text-sm">
             <span>By Admin</span>
           </div>
@@ -110,8 +110,10 @@ const ArticleDetailPage: React.FC = () => {
         <Separator className="my-6" />
 
         <div className="article-content">
-          {article.content.split('\n').map((paragraph, index) => (
-            <p key={index} className="mb-4">{paragraph}</p>
+          {article.content.split("\n").map((paragraph, index) => (
+            <p key={index} className="mb-4 text-justify">
+              {paragraph}
+            </p>
           ))}
         </div>
 
@@ -119,7 +121,7 @@ const ArticleDetailPage: React.FC = () => {
           <div className="mt-12">
             <Separator className="mb-6" />
             <h2 className="text-2xl font-bold mb-6">Related Articles</h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {relatedArticles.map((relatedArticle) => (
                 <ArticleCard key={relatedArticle.id} article={relatedArticle} />
