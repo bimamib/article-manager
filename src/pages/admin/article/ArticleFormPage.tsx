@@ -31,6 +31,7 @@ import { toast } from "@/components/ui/use-toast";
 import { articleService } from "@/services/articleService";
 import { categoryService } from "@/services/categoryService";
 import { ArticleFormData, Category } from "@/types";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Judul wajib diisi" }),
@@ -50,6 +51,7 @@ const ArticleFormPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [refreshingCategories, setRefreshingCategories] = useState(false);
+  const isMobile = useIsMobile();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -184,21 +186,33 @@ const ArticleFormPage = () => {
 
   return (
     <Layout>
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => navigate("/admin/articles")}>
-              <ArrowLeft className="h-4 w-4" />
-              Kembali
+      <div className="container px-4 py-6 mx-auto">
+        {/* Back button above the card on mobile */}
+        {isMobile && (
+          <div className="mb-4">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              asChild 
+              className="flex items-center gap-1"
+            >
+              <Link to="/admin/articles">
+                <ArrowLeft className="h-4 w-4" />
+                <span>Kembali</span>
+              </Link>
             </Button>
-            <h1 className="text-3xl font-bold">
-              {isEditMode ? "Edit Artikel" : "Buat Artikel"}
-            </h1>
           </div>
+        )}
+        
+        <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h1 className="text-2xl font-bold">
+            {isEditMode ? "Edit Artikel" : "Buat Artikel"}
+          </h1>
           <Button
             type="submit"
             onClick={form.handleSubmit(onSubmit)}
             disabled={isSaving}
+            size={isMobile ? "sm" : "default"}
           >
             {isSaving ? (
               <>Menyimpan...</>
@@ -210,130 +224,145 @@ const ArticleFormPage = () => {
             )}
           </Button>
         </div>
-      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Detail Artikel</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList>
-              <TabsTrigger value="editor">Editor</TabsTrigger>
-              <TabsTrigger value="preview">
-                Pratinjau
-                <Eye className="ml-2 h-4 w-4" />
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="editor">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Judul</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Judul artikel" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="content"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Konten</FormLabel>
-                        <FormControl>
-                          <Textarea placeholder="Isi artikel" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="image"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>URL Gambar</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://example.com/image.jpg" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="category_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex items-center justify-between">
-                          <FormLabel>Kategori</FormLabel>
-                          <Button 
-                            type="button" 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={handleRefreshCategories}
-                            disabled={refreshingCategories}
-                          >
-                            <RefreshCw className={`h-4 w-4 ${refreshingCategories ? 'animate-spin' : ''}`} />
-                          </Button>
-                        </div>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle>Detail Artikel</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="w-full sm:w-auto mb-4">
+                <TabsTrigger value="editor" className="flex-1 sm:flex-none">Editor</TabsTrigger>
+                <TabsTrigger value="preview" className="flex-1 sm:flex-none">
+                  Pratinjau
+                  <Eye className="ml-2 h-4 w-4" />
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="editor">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Judul</FormLabel>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Pilih kategori" />
-                            </SelectTrigger>
+                            <Input placeholder="Judul artikel" {...field} />
                           </FormControl>
-                          <SelectContent>
-                            {Array.isArray(categories) && categories.length > 0 ? (
-                              categories.map((category) => (
-                                <SelectItem key={category.id} value={category.id}>
-                                  {category.name}
-                                </SelectItem>
-                              ))
-                            ) : (
-                              <SelectItem value="no-categories" disabled>
-                                Tidak ada kategori tersedia
-                              </SelectItem>
-                            )}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </form>
-              </Form>
-            </TabsContent>
-            <TabsContent value="preview">
-              <Card className="border">
-                <CardHeader>
-                  <CardTitle>{previewData.title || "Judul Artikel"}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-4">
-                  {previewData.image && (
-                    <img
-                      src={previewData.image}
-                      alt="Article Preview"
-                      className="w-full h-auto rounded-md"
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  )}
-                  <p>{previewData.content || "Isi Artikel"}</p>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+
+                    <FormField
+                      control={form.control}
+                      name="content"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Konten</FormLabel>
+                          <FormControl>
+                            <Textarea placeholder="Isi artikel" className="min-h-32" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="image"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>URL Gambar</FormLabel>
+                          <FormControl>
+                            <Input placeholder="https://example.com/image.jpg" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="category_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center justify-between">
+                            <FormLabel>Kategori</FormLabel>
+                            <Button 
+                              type="button" 
+                              variant="ghost" 
+                              size="xs" 
+                              onClick={handleRefreshCategories}
+                              disabled={refreshingCategories}
+                            >
+                              <RefreshCw className={`h-4 w-4 ${refreshingCategories ? 'animate-spin' : ''}`} />
+                            </Button>
+                          </div>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Pilih kategori" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {Array.isArray(categories) && categories.length > 0 ? (
+                                categories.map((category) => (
+                                  <SelectItem key={category.id} value={category.id}>
+                                    {category.name}
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <SelectItem value="no-categories" disabled>
+                                  Tidak ada kategori tersedia
+                                </SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {/* Hide on mobile */}
+                    {!isMobile && (
+                      <div className="flex justify-start mt-6">
+                        <Button 
+                          variant="outline" 
+                          type="button" 
+                          onClick={() => navigate("/admin/articles")} 
+                          className="flex items-center gap-2"
+                        >
+                          <ArrowLeft className="h-4 w-4" />
+                          Kembali
+                        </Button>
+                      </div>
+                    )}
+                  </form>
+                </Form>
+              </TabsContent>
+              <TabsContent value="preview">
+                <Card className="border">
+                  <CardHeader>
+                    <CardTitle>{previewData.title || "Judul Artikel"}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-4">
+                    {previewData.image && (
+                      <img
+                        src={previewData.image}
+                        alt="Article Preview"
+                        className="w-full h-auto rounded-md"
+                      />
+                    )}
+                    <p className="whitespace-pre-wrap">{previewData.content || "Isi Artikel"}</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
     </Layout>
   );
 };

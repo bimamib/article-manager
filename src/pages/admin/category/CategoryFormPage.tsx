@@ -21,6 +21,7 @@ import { categoryService } from "@/services/categoryService";
 import { toast } from "@/components/ui/use-toast";
 import { Loading } from "@/components/ui/loading";
 import { CategoryFormData } from "@/types";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Nama kategori diperlukan" }),
@@ -34,6 +35,7 @@ const CategoryFormPage = () => {
   const isEditMode = !!id;
   const [isLoading, setIsLoading] = useState(isEditMode);
   const [isSaving, setIsSaving] = useState(false);
+  const isMobile = useIsMobile();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -107,10 +109,27 @@ const CategoryFormPage = () => {
       {isLoading ? (
         <Loading fullScreen />
       ) : (
-        <div className="container mx-auto py-10">
+        <div className="container px-4 py-6 mx-auto">
+          {/* Back button above the card on mobile */}
+          <div className={`${isMobile ? 'mb-4' : 'hidden'}`}>
+            <Button 
+              variant="outline" 
+              size={isMobile ? "sm" : "default"}
+              asChild
+              className="flex items-center gap-1"
+            >
+              <Link to="/admin/categories">
+                <ArrowLeft className="h-4 w-4" />
+                <span>Kembali</span>
+              </Link>
+            </Button>
+          </div>
+          
           <Card>
-            <CardHeader>
-              <CardTitle>{isEditMode ? "Edit Kategori" : "Buat Kategori"}</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xl md:text-2xl">
+                {isEditMode ? "Edit Kategori" : "Buat Kategori"}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -128,13 +147,16 @@ const CategoryFormPage = () => {
                       </FormItem>
                     )}
                   />
-                  <div className="flex justify-end gap-4">
-                    <Button variant="ghost" asChild>
-                      <Link to="/admin/categories" className="flex items-center gap-2">
-                        <ArrowLeft className="h-4 w-4" />
-                        <span>Kembali</span>
-                      </Link>
-                    </Button>
+                  <div className="flex justify-end gap-4 mt-6">
+                    {/* Hide back button on mobile as it's moved above the card */}
+                    <div className={`${isMobile ? 'hidden' : 'block'}`}>
+                      <Button variant="outline" asChild>
+                        <Link to="/admin/categories" className="flex items-center gap-2">
+                          <ArrowLeft className="h-4 w-4" />
+                          <span>Kembali</span>
+                        </Link>
+                      </Button>
+                    </div>
                     <Button type="submit" disabled={isSaving}>
                       {isSaving ? (
                         <>
