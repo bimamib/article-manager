@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -24,7 +23,10 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
         </div>
         <CardContent className="pt-4 pb-2 flex-grow">
           <div className="flex items-start justify-between mb-2">
-            <Badge variant="outline" className="bg-primary/10 hover:bg-primary/20">
+            <Badge
+              variant="outline"
+              className="bg-primary/10 hover:bg-primary/20"
+            >
               {article.category_name || "Uncategorized"}
             </Badge>
             <div className="text-xs text-muted-foreground flex items-center">
@@ -43,7 +45,10 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
       <CardFooter className="pt-0 pb-4">
         <div className="flex justify-between w-full text-xs text-muted-foreground">
           <span>By Admin</span>
-          <Link to={`/articles/${article.id}`} className="text-primary hover:underline">
+          <Link
+            to={`/articles/${article.id}`}
+            className="text-primary hover:underline"
+          >
             Read more
           </Link>
         </div>

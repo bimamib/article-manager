@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -49,40 +48,50 @@ const ArticleListPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  
+
   const fetchArticles = async (forceRefresh: boolean = true) => {
     setIsLoading(true);
     try {
-      console.log("ArticleListPage - Mengambil artikel, forceRefresh:", forceRefresh);
-      console.log("ArticleListPage - Parameter:", { page: currentPage, search: searchQuery, category: selectedCategory });
-      
-      const response: PaginatedResponse<Article> = await articleService.getArticles(
-        currentPage,
-        searchQuery,
-        selectedCategory,
+      console.log(
+        "ArticleListPage - Mengambil artikel, forceRefresh:",
         forceRefresh
       );
-      
+      console.log("ArticleListPage - Parameter:", {
+        page: currentPage,
+        search: searchQuery,
+        category: selectedCategory,
+      });
+
+      const response: PaginatedResponse<Article> =
+        await articleService.getArticles(
+          currentPage,
+          searchQuery,
+          selectedCategory,
+          forceRefresh
+        );
+
       console.log("ArticleListPage - Artikel yang diambil:", response.data);
-      
+
       if (Array.isArray(response.data)) {
         setArticles(response.data);
       } else {
         console.error("Format data artikel tidak valid:", response.data);
         setArticles([]);
         toast({
-          title: "Peringatan", 
+          title: "Peringatan",
           description: "Format data artikel tidak valid",
           variant: "destructive",
         });
       }
-      
-      setPagination(response.pagination || {
-        current_page: currentPage,
-        total_pages: 1,
-        total: 0,
-        per_page: 10,
-      });
+
+      setPagination(
+        response.pagination || {
+          current_page: currentPage,
+          total_pages: 1,
+          total: 0,
+          per_page: 10,
+        }
+      );
     } catch (error) {
       console.error("Error mengambil artikel:", error);
       toast({
@@ -107,15 +116,18 @@ const ArticleListPage: React.FC = () => {
     console.log("ArticleListPage - Komponen dimuat, memaksa refresh");
     fetchArticles(true);
   }, []);
-  
+
   useEffect(() => {
     if (searchQuery || selectedCategory) {
-      console.log("ArticleListPage - Pencarian atau kategori berubah:", { searchQuery, selectedCategory });
+      console.log("ArticleListPage - Pencarian atau kategori berubah:", {
+        searchQuery,
+        selectedCategory,
+      });
       setCurrentPage(1);
       fetchArticles(true);
     }
   }, [searchQuery, selectedCategory]);
-  
+
   useEffect(() => {
     console.log("ArticleListPage - Halaman berubah:", currentPage);
     fetchArticles(false);
@@ -131,22 +143,25 @@ const ArticleListPage: React.FC = () => {
   };
 
   const handlePageChange = (page: number) => {
-    console.log("ArticleListPage - handlePageChange dipanggil dengan halaman:", page);
+    console.log(
+      "ArticleListPage - handlePageChange dipanggil dengan halaman:",
+      page
+    );
     setCurrentPage(page);
     window.scrollTo(0, 0);
   };
-  
+
   const handleRefresh = async () => {
     console.log("Tombol refresh artikel ditekan, memaksa refresh data");
     setRefreshing(true);
     await fetchArticles(true);
-    
+
     toast({
       title: "Berhasil",
       description: "Data artikel berhasil diperbarui",
     });
   };
-  
+
   const handleDeleteArticle = async (id: string) => {
     try {
       await articleService.deleteArticle(id);
@@ -154,7 +169,7 @@ const ArticleListPage: React.FC = () => {
         title: "Berhasil",
         description: "Artikel berhasil dihapus",
       });
-      
+
       await fetchArticles(true);
     } catch (error) {
       console.error("Error menghapus artikel:", error);
@@ -171,14 +186,19 @@ const ArticleListPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Artikel</h1>
-          <p className="text-muted-foreground">
-            Kelola artikel Anda
-          </p>
+          <p className="text-muted-foreground">Kelola artikel Anda</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleRefresh} disabled={refreshing} className="w-full sm:w-auto">
-            <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-            {refreshing ? 'Memuat...' : 'Refresh'}
+          <Button
+            variant="outline"
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="w-full sm:w-auto"
+          >
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+            />
+            {refreshing ? "Memuat..." : "Refresh"}
           </Button>
           <Button asChild className="w-full sm:w-auto">
             <Link to="/admin/articles/create">
@@ -188,7 +208,7 @@ const ArticleListPage: React.FC = () => {
           </Button>
         </div>
       </div>
-      
+
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="w-full sm:w-60">
           <SearchBar
@@ -202,7 +222,7 @@ const ArticleListPage: React.FC = () => {
             className="w-full"
           />
         </div>
-        
+
         <div className="flex-1">
           {isLoading ? (
             <Loading />
@@ -216,16 +236,24 @@ const ArticleListPage: React.FC = () => {
                     <TableRow>
                       <TableHead className="w-[40%]">Judul</TableHead>
                       <TableHead className="w-[25%]">Kategori</TableHead>
-                      <TableHead className="hidden sm:table-cell w-[25%]">Dibuat</TableHead>
+                      <TableHead className="hidden sm:table-cell w-[25%]">
+                        Dibuat
+                      </TableHead>
                       <TableHead className="text-right">Aksi</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {articles.map((article) => (
                       <TableRow key={article.id}>
-                        <TableCell className="font-medium">{article.title}</TableCell>
-                        <TableCell>{article.category_name || "Tanpa Kategori"}</TableCell>
-                        <TableCell className="hidden sm:table-cell">{formatDate(article.created_at)}</TableCell>
+                        <TableCell className="font-medium">
+                          {article.title}
+                        </TableCell>
+                        <TableCell>
+                          {article.category_name || "Tanpa Kategori"}
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell">
+                          {formatDate(article.created_at)}
+                        </TableCell>
                         <TableCell className="text-right p-0 pr-2">
                           <div className="flex justify-end gap-1">
                             <Button
@@ -234,12 +262,15 @@ const ArticleListPage: React.FC = () => {
                               asChild
                               className="h-8 w-8"
                             >
-                              <Link to={`/articles/${article.id}`} target="_blank">
+                              <Link
+                                to={`/articles/${article.id}`}
+                                target="_blank"
+                              >
                                 <Eye className="h-4 w-4" />
                                 <span className="sr-only">Lihat</span>
                               </Link>
                             </Button>
-                            
+
                             <Button
                               variant="ghost"
                               size="icon"
@@ -251,25 +282,34 @@ const ArticleListPage: React.FC = () => {
                                 <span className="sr-only">Edit</span>
                               </Link>
                             </Button>
-                            
+
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                >
                                   <Trash className="h-4 w-4" />
                                   <span className="sr-only">Hapus</span>
                                 </Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>Hapus Artikel</AlertDialogTitle>
+                                  <AlertDialogTitle>
+                                    Hapus Artikel
+                                  </AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Apakah Anda yakin ingin menghapus artikel ini? Tindakan ini tidak dapat dibatalkan.
+                                    Apakah Anda yakin ingin menghapus artikel
+                                    ini? Tindakan ini tidak dapat dibatalkan.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Batal</AlertDialogCancel>
                                   <AlertDialogAction
-                                    onClick={() => handleDeleteArticle(article.id)}
+                                    onClick={() =>
+                                      handleDeleteArticle(article.id)
+                                    }
                                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                   >
                                     Hapus
@@ -284,7 +324,7 @@ const ArticleListPage: React.FC = () => {
                   </TableBody>
                 </Table>
               </div>
-              
+
               <div className="p-4 border-t">
                 <PaginationControls
                   pagination={pagination}

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -45,28 +44,39 @@ const CategoryListPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const { toast } = useToast();
-  
+
   const fetchCategories = async (forceRefresh: boolean = true) => {
     setIsLoading(true);
     try {
-      console.log("CategoryListPage - Memulai pengambilan kategori, forceRefresh:", forceRefresh);
-      
-      const allCategories = await categoryService.getAllCategories(forceRefresh);
-      console.log("CategoryListPage - Semua kategori yang diambil:", allCategories);
-      
+      console.log(
+        "CategoryListPage - Memulai pengambilan kategori, forceRefresh:",
+        forceRefresh
+      );
+
+      const allCategories = await categoryService.getAllCategories(
+        forceRefresh
+      );
+      console.log(
+        "CategoryListPage - Semua kategori yang diambil:",
+        allCategories
+      );
+
       const itemsPerPage = 10;
       const startIndex = (currentPage - 1) * itemsPerPage;
       const endIndex = startIndex + itemsPerPage;
-      
+
       let filteredCategories = allCategories;
       if (searchQuery) {
-        filteredCategories = allCategories.filter(cat => 
+        filteredCategories = allCategories.filter((cat) =>
           cat.name.toLowerCase().includes(searchQuery.toLowerCase())
         );
       }
-      
-      const paginatedCategories = filteredCategories.slice(startIndex, endIndex);
-      
+
+      const paginatedCategories = filteredCategories.slice(
+        startIndex,
+        endIndex
+      );
+
       setCategories(paginatedCategories);
       setPagination({
         current_page: currentPage,
@@ -93,12 +103,12 @@ const CategoryListPage: React.FC = () => {
       setRefreshing(false);
     }
   };
-  
+
   useEffect(() => {
     console.log("CategoryListPage - Komponen dimuat, memaksa refresh");
     fetchCategories(true);
   }, []);
-  
+
   useEffect(() => {
     console.log("CategoryListPage - Halaman berubah:", currentPage);
     fetchCategories(false);
@@ -111,27 +121,30 @@ const CategoryListPage: React.FC = () => {
       fetchCategories(false);
     }
   }, [searchQuery]);
-  
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
 
   const handlePageChange = (page: number) => {
-    console.log("CategoryListPage - handlePageChange dipanggil dengan halaman:", page);
+    console.log(
+      "CategoryListPage - handlePageChange dipanggil dengan halaman:",
+      page
+    );
     setCurrentPage(page);
   };
-  
+
   const handleRefresh = async () => {
     console.log("Tombol refresh ditekan, memaksa refresh data");
     setRefreshing(true);
     await fetchCategories(true);
-    
+
     toast({
       title: "Berhasil",
       description: "Data kategori berhasil diperbarui",
     });
   };
-  
+
   const handleDeleteCategory = async (id: string) => {
     try {
       await categoryService.deleteCategory(id);
@@ -139,7 +152,7 @@ const CategoryListPage: React.FC = () => {
         title: "Berhasil",
         description: "Kategori berhasil dihapus",
       });
-      
+
       await fetchCategories(true);
     } catch (error) {
       console.error("Error saat menghapus kategori:", error);
@@ -156,19 +169,19 @@ const CategoryListPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Kategori</h1>
-          <p className="text-muted-foreground">
-            Kelola kategori artikel Anda
-          </p>
+          <p className="text-muted-foreground">Kelola kategori artikel Anda</p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={handleRefresh}
             disabled={refreshing}
             className="w-full sm:w-auto"
           >
-            <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-            {refreshing ? 'Memperbarui...' : 'Refresh'}
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+            />
+            {refreshing ? "Memperbarui..." : "Refresh"}
           </Button>
           <Button asChild className="w-full sm:w-auto">
             <Link to="/admin/categories/create">
@@ -178,7 +191,7 @@ const CategoryListPage: React.FC = () => {
           </Button>
         </div>
       </div>
-      
+
       <div className="mb-6">
         <SearchBar
           onSearch={handleSearch}
@@ -186,7 +199,7 @@ const CategoryListPage: React.FC = () => {
           className="w-full"
         />
       </div>
-      
+
       {isLoading ? (
         <Loading />
       ) : categories.length === 0 ? (
@@ -198,17 +211,27 @@ const CategoryListPage: React.FC = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[30%]">Nama</TableHead>
-                  <TableHead className="w-[30%] hidden sm:table-cell">Dibuat</TableHead>
-                  <TableHead className="w-[30%] hidden sm:table-cell">Diperbarui</TableHead>
+                  <TableHead className="w-[30%] hidden sm:table-cell">
+                    Dibuat
+                  </TableHead>
+                  <TableHead className="w-[30%] hidden sm:table-cell">
+                    Diperbarui
+                  </TableHead>
                   <TableHead className="text-right">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {categories.map((category) => (
                   <TableRow key={category.id}>
-                    <TableCell className="font-medium">{category.name}</TableCell>
-                    <TableCell className="hidden sm:table-cell">{formatDate(category.created_at)}</TableCell>
-                    <TableCell className="hidden sm:table-cell">{formatDate(category.updated_at)}</TableCell>
+                    <TableCell className="font-medium">
+                      {category.name}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      {formatDate(category.created_at)}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      {formatDate(category.updated_at)}
+                    </TableCell>
                     <TableCell className="text-right p-0 pr-2">
                       <div className="flex justify-end gap-1">
                         <Button
@@ -222,25 +245,35 @@ const CategoryListPage: React.FC = () => {
                             <span className="sr-only">Edit</span>
                           </Link>
                         </Button>
-                        
+
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
                               <Trash className="h-4 w-4" />
                               <span className="sr-only">Hapus</span>
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Hapus Kategori</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                Hapus Kategori
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Apakah Anda yakin ingin menghapus kategori "{category.name}"? Tindakan ini tidak dapat dibatalkan.
+                                Apakah Anda yakin ingin menghapus kategori "
+                                {category.name}"? Tindakan ini tidak dapat
+                                dibatalkan.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Batal</AlertDialogCancel>
                               <AlertDialogAction
-                                onClick={() => handleDeleteCategory(category.id)}
+                                onClick={() =>
+                                  handleDeleteCategory(category.id)
+                                }
                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                               >
                                 Hapus
