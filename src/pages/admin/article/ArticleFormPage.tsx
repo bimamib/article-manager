@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -187,13 +186,14 @@ const ArticleFormPage = () => {
   return (
     <Layout>
       <div className="container px-4 py-6 mx-auto">
-        {/* Back button above the card on mobile */}
+        {/* Back button above the card on mobile - updated with width="auto" */}
         {isMobile && (
           <div className="mb-4">
             <Button 
               variant="outline" 
               size="sm" 
               asChild 
+              width="auto"
               className="flex items-center gap-1"
             >
               <Link to="/admin/articles">
@@ -213,6 +213,7 @@ const ArticleFormPage = () => {
             onClick={form.handleSubmit(onSubmit)}
             disabled={isSaving}
             size={isMobile ? "sm" : "default"}
+            width="auto"
           >
             {isSaving ? (
               <>Menyimpan...</>
@@ -331,6 +332,7 @@ const ArticleFormPage = () => {
                         <Button 
                           variant="outline" 
                           type="button" 
+                          width="auto"
                           onClick={() => navigate("/admin/articles")} 
                           className="flex items-center gap-2"
                         >
