@@ -11,7 +11,11 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
-const ArticlesPage: React.FC = () => {
+interface ArticlesPageProps {
+  isExplore?: boolean;
+}
+
+const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
   // Initialize articles as an empty array
   const [articles, setArticles] = useState<Article[]>([]);
   const [pagination, setPagination] = useState({
@@ -169,9 +173,14 @@ const ArticlesPage: React.FC = () => {
       <div className="mb-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Jelajahi Artikel</h1>
+            <h1 className="text-3xl font-bold mb-2">
+              {isExplore ? "Jelajahi Artikel" : "Artikel Saya"}
+            </h1>
             <p className="text-muted-foreground">
-              Temukan artikel dan wawasan terbaru
+              {isExplore 
+                ? "Temukan artikel dan wawasan terbaru" 
+                : "Artikel yang Anda bookmark atau sukai"
+              }
             </p>
           </div>
           <Button 
