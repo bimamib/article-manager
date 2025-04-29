@@ -186,17 +186,16 @@ const ArticleFormPage = () => {
   return (
     <Layout>
       <div className="container px-4 py-6 mx-auto">
-        {/* Back button above the card on mobile - updated with width="auto" */}
+        {/* Back button above the card on mobile - fixed width to match text */}
         {isMobile && (
           <div className="mb-4">
             <Button 
               variant="outline" 
               size="sm" 
               asChild 
-              width="auto"
-              className="flex items-center gap-1"
+              className="inline-flex w-auto"
             >
-              <Link to="/admin/articles">
+              <Link to="/admin/articles" className="flex items-center gap-1">
                 <ArrowLeft className="h-4 w-4" />
                 <span>Kembali</span>
               </Link>
@@ -213,7 +212,7 @@ const ArticleFormPage = () => {
             onClick={form.handleSubmit(onSubmit)}
             disabled={isSaving}
             size={isMobile ? "sm" : "default"}
-            width="auto"
+            className="w-auto"
           >
             {isSaving ? (
               <>Menyimpan...</>
@@ -332,11 +331,10 @@ const ArticleFormPage = () => {
                         <Button 
                           variant="outline" 
                           type="button" 
-                          width="auto"
+                          className="inline-flex w-auto"
                           onClick={() => navigate("/admin/articles")} 
-                          className="flex items-center gap-2"
                         >
-                          <ArrowLeft className="h-4 w-4" />
+                          <ArrowLeft className="h-4 w-4 mr-2" />
                           Kembali
                         </Button>
                       </div>
