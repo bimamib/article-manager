@@ -114,11 +114,11 @@ const CategoryFormPage = () => {
           <div className={`${isMobile ? 'mb-4' : 'hidden'}`}>
             <Button 
               variant="outline" 
-              size={isMobile ? "sm" : "default"}
+              size="sm"
               asChild
-              className="flex items-center gap-1"
+              className="inline-flex w-auto"
             >
-              <Link to="/admin/categories">
+              <Link to="/admin/categories" className="flex items-center gap-1">
                 <ArrowLeft className="h-4 w-4" />
                 <span>Kembali</span>
               </Link>
@@ -150,7 +150,7 @@ const CategoryFormPage = () => {
                   <div className="flex justify-end gap-4 mt-6">
                     {/* Hide back button on mobile as it's moved above the card */}
                     <div className={`${isMobile ? 'hidden' : 'block'}`}>
-                      <Button variant="outline" asChild>
+                      <Button variant="outline" asChild className="w-auto">
                         <Link to="/admin/categories" className="flex items-center gap-2">
                           <ArrowLeft className="h-4 w-4" />
                           <span>Kembali</span>

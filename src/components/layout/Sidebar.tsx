@@ -1,6 +1,6 @@
 
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -25,17 +25,45 @@ interface NavItemProps {
   icon: React.ElementType;
   label: string;
   isActive?: boolean;
+  exact?: boolean;
   onClick?: () => void;
 }
 
-const NavItem: React.FC<NavItemProps> = ({ to, icon: Icon, label, isActive, onClick }) => {
+const NavItem: React.FC<NavItemProps> = ({ to, icon: Icon, label, exact = false, onClick }) => {
+  const location = useLocation();
+  
+  // Custom isActive logic
+  const isPathActive = () => {
+    if (exact) {
+      return location.pathname === to;
+    }
+    
+    // Special case for Create Article
+    if (to === "/admin/articles/create" && location.pathname === to) {
+      return true;
+    }
+    
+    // Special case for Articles menu
+    if (to === "/admin/articles" && location.pathname === to) {
+      return true;
+    }
+    
+    // Special case for Explore
+    if (to === "/articles/explore" && location.pathname === to) {
+      return true;
+    }
+    
+    // For all other cases
+    return location.pathname === to;
+  };
+
   return (
     <NavLink 
       to={to} 
       onClick={onClick}
       className={({ isActive }) => cn(
         "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
-        isActive ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground"
+        isPathActive() ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground"
       )}
     >
       <Icon className="h-4 w-4" />
@@ -78,8 +106,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, setIsOpen }) =
       
       <ScrollArea className="flex-1 p-3">
         <div className="space-y-1">
-          <NavItem to="/articles" icon={Home} label={collapsed ? "" : "Home"} />
-          <NavItem to="/articles/explore" icon={BookOpen} label={collapsed ? "" : "Explore"} />
+          <NavItem to="/articles" icon={Home} label={collapsed ? "" : "Home"} exact={true} />
+          <NavItem to="/articles/explore" icon={BookOpen} label={collapsed ? "" : "Explore"} exact={true} />
         </div>
         
         {isAdmin && (
@@ -89,11 +117,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, setIsOpen }) =
               {collapsed ? "" : "Admin"}
             </div>
             <div className="space-y-1">
-              <NavItem to="/admin/categories" icon={FolderOpenDot} label={collapsed ? "" : "Categories"} />
-              <NavItem to="/admin/articles" icon={FileText} label={collapsed ? "" : "Articles"} />
-              <NavItem to="/admin/articles/create" icon={FilePlus} label={collapsed ? "" : "Create Article"} />
-              <NavItem to="/admin/users" icon={Users} label={collapsed ? "" : "Users"} />
-              <NavItem to="/admin/settings" icon={Settings} label={collapsed ? "" : "Settings"} />
+              <NavItem to="/admin/categories" icon={FolderOpenDot} label={collapsed ? "" : "Categories"} exact={true} />
+              <NavItem to="/admin/articles" icon={FileText} label={collapsed ? "" : "Articles"} exact={true} />
+              <NavItem to="/admin/articles/create" icon={FilePlus} label={collapsed ? "" : "Create Article"} exact={true} />
+              <NavItem to="/admin/users" icon={Users} label={collapsed ? "" : "Users"} exact={true} />
+              <NavItem to="/admin/settings" icon={Settings} label={collapsed ? "" : "Settings"} exact={true} />
             </div>
           </>
         )}
@@ -121,8 +149,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, setIsOpen }) =
             
             <ScrollArea className="flex-1 p-3">
               <div className="space-y-1">
-                <NavItem to="/articles" icon={Home} label="Home" onClick={closeSidebar} />
-                <NavItem to="/articles/explore" icon={BookOpen} label="Explore" onClick={closeSidebar} />
+                <NavItem to="/articles" icon={Home} label="Home" exact={true} onClick={closeSidebar} />
+                <NavItem to="/articles/explore" icon={BookOpen} label="Explore" exact={true} onClick={closeSidebar} />
               </div>
               
               {isAdmin && (
@@ -132,11 +160,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, setIsOpen }) =
                     Admin
                   </div>
                   <div className="space-y-1">
-                    <NavItem to="/admin/categories" icon={FolderOpenDot} label="Categories" onClick={closeSidebar} />
-                    <NavItem to="/admin/articles" icon={FileText} label="Articles" onClick={closeSidebar} />
-                    <NavItem to="/admin/articles/create" icon={FilePlus} label="Create Article" onClick={closeSidebar} />
-                    <NavItem to="/admin/users" icon={Users} label="Users" onClick={closeSidebar} />
-                    <NavItem to="/admin/settings" icon={Settings} label="Settings" onClick={closeSidebar} />
+                    <NavItem to="/admin/categories" icon={FolderOpenDot} label="Categories" exact={true} onClick={closeSidebar} />
+                    <NavItem to="/admin/articles" icon={FileText} label="Articles" exact={true} onClick={closeSidebar} />
+                    <NavItem to="/admin/articles/create" icon={FilePlus} label="Create Article" exact={true} onClick={closeSidebar} />
+                    <NavItem to="/admin/users" icon={Users} label="Users" exact={true} onClick={closeSidebar} />
+                    <NavItem to="/admin/settings" icon={Settings} label="Settings" exact={true} onClick={closeSidebar} />
                   </div>
                 </>
               )}

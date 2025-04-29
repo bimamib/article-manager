@@ -56,6 +56,14 @@ const App = () => {
                 } 
               />
               <Route 
+                path="/articles/explore" 
+                element={
+                  <RequireAuth>
+                    <ArticlesPage isExplore={true} />
+                  </RequireAuth>
+                } 
+              />
+              <Route 
                 path="/articles/:id" 
                 element={
                   <RequireAuth>
