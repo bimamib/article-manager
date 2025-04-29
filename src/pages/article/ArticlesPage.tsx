@@ -35,53 +35,74 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
   const fetchArticles = async (forceRefresh: boolean = true) => {
     setIsLoading(true);
     try {
-      console.log("ArticlePage - Memulai pengambilan artikel, forceRefresh:", forceRefresh);
-      console.log("ArticlePage - Parameter:", { page: currentPage, search: searchQuery, category: selectedCategory });
-      
+      console.log(
+        "ArticlePage - Memulai pengambilan artikel, forceRefresh:",
+        forceRefresh
+      );
+      console.log("ArticlePage - Parameter:", {
+        page: currentPage,
+        search: searchQuery,
+        category: selectedCategory,
+      });
+
       // Ambil data langsung dari localStorage untuk performa
-      const localArticles = JSON.parse(localStorage.getItem('localArticles') || '[]');
-      
-      if (!forceRefresh && localArticles && Array.isArray(localArticles) && localArticles.length > 0) {
+      const localArticles = JSON.parse(
+        localStorage.getItem("localArticles") || "[]"
+      );
+
+      if (
+        !forceRefresh &&
+        localArticles &&
+        Array.isArray(localArticles) &&
+        localArticles.length > 0
+      ) {
         // Filter berdasarkan kategori dan pencarian
         let filteredArticles = localArticles;
-        
+
         if (selectedCategory) {
-          filteredArticles = filteredArticles.filter(article => article.category_id === selectedCategory);
-        }
-        
-        if (searchQuery) {
-          filteredArticles = filteredArticles.filter(article => 
-            article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (article.content && article.content.toLowerCase().includes(searchQuery.toLowerCase()))
+          filteredArticles = filteredArticles.filter(
+            (article) => article.category_id === selectedCategory
           );
         }
-        
+
+        if (searchQuery) {
+          filteredArticles = filteredArticles.filter(
+            (article) =>
+              article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              (article.content &&
+                article.content
+                  .toLowerCase()
+                  .includes(searchQuery.toLowerCase()))
+          );
+        }
+
         console.log("ArticlePage - Filter artikel lokal:", filteredArticles);
-        
+
         // Paginate the results
         const itemsPerPage = 9;
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
         const paginatedArticles = filteredArticles.slice(startIndex, endIndex);
-        
+
         setArticles(paginatedArticles);
         setPagination({
           current_page: currentPage,
           total_pages: Math.ceil(filteredArticles.length / itemsPerPage),
           total: filteredArticles.length,
-          per_page: itemsPerPage
+          per_page: itemsPerPage,
         });
       } else {
         // Try to get from API through the service
-        const response: PaginatedResponse<Article> = await articleService.getArticles(
-          currentPage,
-          searchQuery,
-          selectedCategory,
-          forceRefresh
-        );
-        
+        const response: PaginatedResponse<Article> =
+          await articleService.getArticles(
+            currentPage,
+            searchQuery,
+            selectedCategory,
+            forceRefresh
+          );
+
         console.log("ArticlePage - Artikel yang diambil:", response.data);
-        
+
         // Pastikan data artikel adalah array
         if (Array.isArray(response.data)) {
           setArticles(response.data);
@@ -94,13 +115,15 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
             variant: "destructive",
           });
         }
-        
-        setPagination(response.pagination || {
-          current_page: currentPage, // Use currentPage instead of default 1
-          total_pages: 1,
-          total: 0,
-          per_page: 9,
-        });
+
+        setPagination(
+          response.pagination || {
+            current_page: currentPage, // Use currentPage instead of default 1
+            total_pages: 1,
+            total: 0,
+            per_page: 9,
+          }
+        );
       }
     } catch (error) {
       console.error("Error mengambil artikel:", error);
@@ -122,20 +145,20 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
       setRefreshing(false);
     }
   };
-  
+
   // Fetch articles when component mounts with force refresh
   useEffect(() => {
     console.log("ArticlePage - Komponen dimuat, memaksa refresh");
     fetchArticles(true); // Selalu paksa refresh saat komponen dimuat
   }, []);
-  
+
   // Re-fetch when search or category changes
   useEffect(() => {
     console.log("ArticlePage - Pencarian atau kategori berubah");
     setCurrentPage(1); // Reset page to 1 when filters change
     fetchArticles(true); // Force refresh when filters change
   }, [searchQuery, selectedCategory]);
-  
+
   // Re-fetch when page changes
   useEffect(() => {
     console.log("ArticlePage - Halaman berubah:", currentPage);
@@ -152,16 +175,19 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
   };
 
   const handlePageChange = (page: number) => {
-    console.log("ArticlePage - handlePageChange dipanggil dengan halaman:", page);
+    console.log(
+      "ArticlePage - handlePageChange dipanggil dengan halaman:",
+      page
+    );
     setCurrentPage(page);
     window.scrollTo(0, 0);
   };
-  
+
   const handleRefresh = async () => {
     console.log("Tombol refresh ditekan, memaksa refresh data");
     setRefreshing(true);
     await fetchArticles(true);
-    
+
     toast({
       title: "Berhasil",
       description: "Data artikel berhasil diperbarui",
@@ -177,19 +203,20 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
               {isExplore ? "Jelajahi Artikel" : "Artikel Saya"}
             </h1>
             <p className="text-muted-foreground">
-              {isExplore 
-                ? "Temukan artikel dan wawasan terbaru" 
-                : "Artikel yang Anda bookmark atau sukai"
-              }
+              {isExplore
+                ? "Temukan artikel dan wawasan terbaru"
+                : "Artikel yang Anda bookmark atau sukai"}
             </p>
           </div>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={handleRefresh}
             disabled={refreshing}
           >
-            <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-            {refreshing ? 'Memuat...' : 'Refresh'}
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+            />
+            {refreshing ? "Memuat..." : "Refresh"}
           </Button>
         </div>
       </div>
@@ -201,14 +228,14 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
           onSelectCategory={handleCategorySelect}
           className="hidden md:block"
         />
-        
+
         <div className="flex-1">
           <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
             <SearchBar
               onSearch={handleSearch}
               className={isMobile ? "w-full" : "w-[300px]"}
             />
-            
+
             {/* Mobile CategoryFilter - only shown on mobile */}
             {isMobile && (
               <CategoryFilter
@@ -220,7 +247,7 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
           </div>
 
           <ArticleGrid articles={articles} isLoading={isLoading} />
-          
+
           <PaginationControls
             pagination={pagination}
             onPageChange={handlePageChange}
