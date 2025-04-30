@@ -24,12 +24,17 @@ export const CategoryList: React.FC<CategoryListProps> = ({
     );
   }
 
+  const handleCategoryClick = (categoryId: string) => {
+    console.log("CategoryList - Category clicked:", categoryId);
+    onCategoryClick(categoryId);
+  };
+
   return (
     <div className="space-y-1">
       <Button
         variant={selectedCategory === "" ? "default" : "ghost"}
         className="w-full justify-start"
-        onClick={() => onCategoryClick("")}
+        onClick={() => handleCategoryClick("")}
       >
         Semua Kategori
       </Button>
@@ -40,7 +45,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
             key={category.id}
             variant={selectedCategory === category.id ? "default" : "ghost"}
             className="w-full justify-start"
-            onClick={() => onCategoryClick(category.id)}
+            onClick={() => handleCategoryClick(category.id)}
           >
             {category.name}
           </Button>

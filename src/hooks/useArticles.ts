@@ -63,12 +63,15 @@ export const useArticles = (): UseArticlesResult => {
         localArticles.length > 0
       ) {
         // Filter berdasarkan kategori dan pencarian
-        let filteredArticles = localArticles;
+        let filteredArticles = [...localArticles]; // Create a copy to avoid reference issues
 
         if (selectedCategory) {
+          console.log("Filtering by category ID:", selectedCategory);
           filteredArticles = filteredArticles.filter(
             (article) => article.category_id === selectedCategory
           );
+        } else {
+          console.log("No category filter applied, showing all articles");
         }
 
         if (searchQuery) {
@@ -160,8 +163,8 @@ export const useArticles = (): UseArticlesResult => {
 
   // Re-fetch when search or category changes
   useEffect(() => {
-    console.log("ArticlePage - Pencarian atau kategori berubah");
-    setCurrentPage(1);
+    console.log("ArticlePage - Pencarian atau kategori berubah:", { searchQuery, selectedCategory });
+    setCurrentPage(1); // Reset to first page
     fetchArticles(true);
   }, [searchQuery, selectedCategory]);
 
