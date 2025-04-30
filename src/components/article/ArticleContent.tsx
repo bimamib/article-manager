@@ -27,16 +27,21 @@ export const ArticleContent: React.FC<ArticleContentProps> = ({
   onPageChange,
   isMobile,
 }) => {
+  // Check if we're on tablet view (between mobile and desktop)
+  const isTablet = !isMobile && window.innerWidth < 1024;
+
   return (
     <div className="flex flex-col lg:flex-row gap-6">
       {/* Desktop CategoryFilter - only shown on desktop */}
-      <CategoryFilter
-        selectedCategory={selectedCategory}
-        onSelectCategory={onSelectCategory}
-        className="hidden lg:block"
-      />
+      {!isTablet && (
+        <CategoryFilter
+          selectedCategory={selectedCategory}
+          onSelectCategory={onSelectCategory}
+          className="hidden lg:block"
+        />
+      )}
 
-      <div className="flex-1">
+      <div className={`flex-1 ${isTablet ? 'max-w-full' : ''}`}>
         <ArticleFilterSection
           isMobile={isMobile}
           selectedCategory={selectedCategory}
@@ -44,7 +49,10 @@ export const ArticleContent: React.FC<ArticleContentProps> = ({
           onSearch={onSearch}
         />
 
-        <ArticleGrid articles={articles} isLoading={isLoading} />
+        <ArticleGrid 
+          articles={articles} 
+          isLoading={isLoading} 
+        />
 
         <PaginationControls
           pagination={pagination}

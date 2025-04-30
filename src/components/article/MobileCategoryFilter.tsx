@@ -10,7 +10,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Filter, X, RefreshCw } from "lucide-react";
+import { Filter, RefreshCw } from "lucide-react";
 import { CategoryList } from "@/components/article/CategoryList";
 import { cn } from "@/lib/utils";
 
@@ -48,11 +48,11 @@ export const MobileCategoryFilter: React.FC<MobileCategoryFilterProps> = ({
           <span>Filter Kategori</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[85vw] sm:w-[60vw] md:w-[50vw] lg:w-[40vw]">
-        <SheetHeader className="mb-4">
-          <SheetTitle className="flex items-center justify-between">
-            <span>Kategori</span>
-            <div className="flex items-center gap-2">
+      <SheetContent side="left" className="w-[85vw] sm:w-[60vw] md:w-[50vw] lg:w-[40vw] p-0">
+        <div className="p-6">
+          <SheetHeader className="mb-4">
+            <SheetTitle className="flex items-center justify-between">
+              <span>Kategori</span>
               <Button
                 variant="outline"
                 size="icon"
@@ -61,25 +61,18 @@ export const MobileCategoryFilter: React.FC<MobileCategoryFilterProps> = ({
               >
                 <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSheetOpen(false)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </SheetTitle>
-        </SheetHeader>
-        <Separator className="mb-4" />
-        <ScrollArea className="h-[calc(100vh-8rem)]">
-          <CategoryList
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onCategoryClick={handleCategoryClick}
-            isLoading={isLoading}
-          />
-        </ScrollArea>
+            </SheetTitle>
+          </SheetHeader>
+          <Separator className="mb-4" />
+          <ScrollArea className="h-[calc(100vh-8rem)]">
+            <CategoryList
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onCategoryClick={handleCategoryClick}
+              isLoading={isLoading}
+            />
+          </ScrollArea>
+        </div>
       </SheetContent>
     </Sheet>
   );

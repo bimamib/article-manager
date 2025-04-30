@@ -19,8 +19,10 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   const isMobile = useIsMobile();
   const { categories, isLoading, refreshing, handleRefresh } = useCategories();
 
-  // For mobile and tablet
-  if (isMobile || window.innerWidth < 1024) {
+  // Tablet view is between 768px and 1024px
+  const isTablet = !isMobile && window.innerWidth < 1024;
+  
+  if (isMobile || isTablet) {
     return (
       <MobileCategoryFilter
         className={className}
