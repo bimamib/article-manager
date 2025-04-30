@@ -14,9 +14,6 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
   articles,
   isLoading,
 }) => {
-  // Check if we're on tablet view
-  const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
-
   if (isLoading) {
     return <Loading />;
   }
@@ -27,9 +24,7 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
   }
 
   return (
-    <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 ${
-      isTablet ? 'sm:grid-cols-1 md:grid-cols-2' : ''
-    }`}>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {articles.map((article) => (
         <ArticleCard key={article.id} article={article} />
       ))}

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -14,7 +13,7 @@ interface ArticleCardProps {
 export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
   return (
     <Card className="overflow-hidden h-full flex flex-col transition-all duration-200 hover:shadow-md">
-      <Link to={`/articles/${article.id}`} className="group flex-grow flex flex-col">
+      <Link to={`/articles/${article.id}`} className="group">
         <div className="aspect-video overflow-hidden">
           <img
             src={article.image || "https://picsum.photos/seed/article/800/450"}
@@ -23,7 +22,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
           />
         </div>
         <CardContent className="pt-4 pb-2 flex-grow">
-          <div className="flex items-start justify-between mb-2 flex-wrap gap-1">
+          <div className="flex items-start justify-between mb-2">
             <Badge
               variant="outline"
               className="bg-primary/10 hover:bg-primary/20"

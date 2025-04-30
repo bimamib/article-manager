@@ -68,19 +68,13 @@ export const articleService = {
       }
       
       // Fallback with local storage data
-      let filteredArticles = [...localArticles]; // Create a copy to avoid reference issues
+      let filteredArticles = localArticles;
       
-      // Apply category filter if categoryId is provided (not empty string)
-      if (categoryId && categoryId !== "") {
-        console.log(`getArticles - Filtering by category ID: ${categoryId}`);
+      if (categoryId) {
         filteredArticles = filteredArticles.filter(article => article.category_id === categoryId);
-      } else {
-        console.log("getArticles - No category filter applied, showing all articles");
       }
       
-      // Apply search filter if search is provided
-      if (search && search !== "") {
-        console.log(`getArticles - Filtering by search term: ${search}`);
+      if (search) {
         filteredArticles = filteredArticles.filter(article => {
           return article.title.toLowerCase().includes(search.toLowerCase()) || 
                 (article.content && article.content.toLowerCase().includes(search.toLowerCase()));
@@ -108,15 +102,13 @@ export const articleService = {
       console.error("Error mengambil artikel:", error);
       
       // Filter local articles as fallback
-      let filteredArticles = [...localArticles]; // Create a copy to avoid reference issues
+      let filteredArticles = localArticles;
       
-      // Apply category filter if categoryId is provided (not empty string)
-      if (categoryId && categoryId !== "") {
+      if (categoryId) {
         filteredArticles = filteredArticles.filter(article => article.category_id === categoryId);
       }
       
-      // Apply search filter if search is provided
-      if (search && search !== "") {
+      if (search) {
         filteredArticles = filteredArticles.filter(article => {
           return article.title.toLowerCase().includes(search.toLowerCase()) || 
                 (article.content && article.content.toLowerCase().includes(search.toLowerCase()));

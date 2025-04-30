@@ -26,7 +26,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       {isAuthenticated && <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />}
       <div className="flex-1">
         <Navbar toggleSidebar={toggleSidebar} />
-        <ScrollArea className="flex-1 h-[calc(100vh-4rem)] px-3 py-3 sm:px-4 sm:py-4 md:p-6">
+        <ScrollArea className="flex-1 h-[calc(100vh-4rem)] px-4 py-4 md:p-6">
           <main className="max-w-7xl mx-auto">{children}</main>
         </ScrollArea>
       </div>

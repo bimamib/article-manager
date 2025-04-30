@@ -31,7 +31,7 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
   const isMobile = useIsMobile();
   
   return (
-    <header className="h-16 border-b bg-background px-3 sm:px-4 flex items-center justify-between sticky top-0 z-30">
+    <header className="h-16 border-b bg-background px-4 flex items-center justify-between sticky top-0 z-30">
       <div className="flex items-center gap-2">
         {isMobile && (
           <Button variant="ghost" size="icon" onClick={toggleSidebar} className="relative z-10">
@@ -46,12 +46,12 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
         </Link>
       </div>
       
-      <div className="flex items-center gap-2 sm:gap-4">
+      <div className="flex items-center gap-4">
         <div className="relative hidden md:block">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input 
             placeholder="Search..." 
-            className="pl-10 w-[180px] lg:w-[300px]" 
+            className="pl-10 w-[200px] lg:w-[300px]" 
           />
         </div>
         
@@ -63,10 +63,10 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 sm:h-10 sm:w-10 rounded-full">
-              <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
+            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Avatar>
                 <AvatarImage src="/placeholder.svg" />
-                <AvatarFallback className="bg-primary text-primary-foreground text-xs sm:text-sm">
+                <AvatarFallback className="bg-primary text-primary-foreground">
                   {user?.name?.charAt(0).toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
