@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ArticleGrid } from "@/components/article/ArticleGrid";
@@ -221,27 +222,27 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-6">
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* Desktop CategoryFilter - only shown on desktop */}
         <CategoryFilter
           selectedCategory={selectedCategory}
           onSelectCategory={handleCategorySelect}
-          className="hidden md:block"
+          className="hidden lg:block"
         />
 
         <div className="flex-1">
           <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
             <SearchBar
               onSearch={handleSearch}
-              className={isMobile ? "w-full" : "w-[300px]"}
+              className={isMobile ? "w-full" : "w-full sm:w-[300px]"}
             />
 
-            {/* Mobile CategoryFilter - only shown on mobile */}
-            {isMobile && (
+            {/* Mobile CategoryFilter - shown on mobile and tablet */}
+            {(!isMobile || window.innerWidth < 1024) && (
               <CategoryFilter
                 selectedCategory={selectedCategory}
                 onSelectCategory={handleCategorySelect}
-                className="w-full"
+                className="w-full lg:hidden"
               />
             )}
           </div>

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -131,16 +130,17 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     </div>
   );
 
-  if (isMobile) {
+  // For mobile and tablet
+  if (isMobile || window.innerWidth < 1024) {
     return (
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetTrigger asChild>
           <Button variant="outline" className={cn("flex items-center gap-2", className)}>
             <Filter className="h-4 w-4" />
-            <span>Filter</span>
+            <span>Filter Kategori</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-[80vw]">
+        <SheetContent side="left" className="w-[85vw] sm:w-[60vw] md:w-[50vw] lg:w-[40vw]">
           <SheetHeader className="mb-4">
             <SheetTitle className="flex items-center justify-between">
               <span>Kategori</span>
@@ -178,8 +178,9 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     );
   }
 
+  // For desktop
   return (
-    <div className={cn("w-60 hidden md:block", className)}>
+    <div className={cn("w-60 hidden lg:block", className)}>
       <div className="flex items-center justify-between mb-4">
         <div className="font-semibold text-lg">Kategori</div>
         <Button
