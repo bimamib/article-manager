@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -97,7 +96,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     <div className="space-y-1">
       <Button
         variant={selectedCategory === "" ? "default" : "ghost"}
-        className="w-full justify-start"
+        className="w-full justify-start text-sm"
         onClick={() => handleCategoryClick("")}
       >
         Semua Kategori
@@ -107,7 +106,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
           <Button
             key={category.id}
             variant={selectedCategory === category.id ? "default" : "ghost"}
-            className="w-full justify-start"
+            className="w-full justify-start text-sm"
             onClick={() => handleCategoryClick(category.id)}
           >
             {category.name}
@@ -173,8 +172,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   }
 
   return (
-    // Significantly reduced width from w-48 to w-40, which is closer to the "Semua Kategori" text width
-    <div className={cn("w-40 hidden md:block", className)}>
+    <div className={cn("w-[180px] hidden md:block", className)}>
       <div className="flex items-center justify-between mb-4">
         <div className="font-semibold text-lg">Kategori</div>
         <Button

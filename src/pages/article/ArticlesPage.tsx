@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ArticleGrid } from "@/components/article/ArticleGrid";
@@ -174,7 +175,7 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
       </div>
 
       <div className="flex flex-col md:flex-row gap-4">
-        {/* Desktop CategoryFilter with smaller width */}
+        {/* Desktop CategoryFilter with narrower width to match sidebar */}
         <CategoryFilter
           selectedCategory={selectedCategory}
           onSelectCategory={handleCategorySelect}
