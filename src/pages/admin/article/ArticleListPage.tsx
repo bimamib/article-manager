@@ -119,7 +119,7 @@ const ArticleListPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (searchQuery || selectedCategory) {
+    if (searchQuery || selectedCategory !== undefined) {
       console.log("ArticleListPage - Pencarian atau kategori berubah:", {
         searchQuery,
         selectedCategory,
@@ -131,7 +131,7 @@ const ArticleListPage: React.FC = () => {
 
   useEffect(() => {
     console.log("ArticleListPage - Halaman berubah:", currentPage);
-    fetchArticles(false);
+    fetchArticles(true); // Always force refresh when page changes
   }, [currentPage]);
 
   const handleSearch = (query: string) => {
@@ -211,7 +211,7 @@ const ArticleListPage: React.FC = () => {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="w-full sm:w-[180px]">
+        <div className="w-full sm:w-[140px]">
           <SearchBar
             onSearch={handleSearch}
             placeholder="Cari artikel..."

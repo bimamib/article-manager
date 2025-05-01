@@ -198,7 +198,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   }
 
   return (
-    <div className={cn("w-60 hidden md:block", className)}>
+    <div className={cn("w-[140px] hidden md:block", className)}>
       <div className="flex items-center justify-between mb-4">
         <div className="font-semibold text-lg">Kategori</div>
         <Button

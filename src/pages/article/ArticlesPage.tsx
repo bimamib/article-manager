@@ -115,7 +115,7 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
   // Re-fetch when page changes
   useEffect(() => {
     console.log("ArticlePage - Halaman berubah:", currentPage);
-    fetchArticles(false);
+    fetchArticles(true); // Always force refresh when page changes
   }, [currentPage]);
 
   const handleCategorySelect = (categoryId: string) => {
