@@ -41,29 +41,20 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
       setIsLoading(true);
       console.log("CategoryFilter - Memulai pengambilan kategori, forceRefresh:", forceRefresh);
       
-      // Mengambil langsung dari localStorage untuk performa
-      const localCategories = JSON.parse(localStorage.getItem('localCategories') || '[]');
+      // Mengambil dari API untuk memastikan data terbaru
+      const fetchedCategories = await categoryService.getAllCategories(forceRefresh);
       
-      if (localCategories && Array.isArray(localCategories) && localCategories.length > 0) {
-        console.log("CategoryFilter - Menggunakan kategori dari localStorage:", localCategories);
-        setCategories(localCategories);
+      if (Array.isArray(fetchedCategories)) {
+        setCategories(fetchedCategories);
+        console.log("CategoryFilter - Berhasil mengambil kategori:", fetchedCategories);
       } else {
-        // Jika tidak ada di localStorage, paksa refresh dari API
-        console.log("CategoryFilter - Tidak ada data di localStorage, mengambil dari API");
-        const fetchedCategories = await categoryService.getAllCategories(true);
-        
-        if (Array.isArray(fetchedCategories)) {
-          setCategories(fetchedCategories);
-          console.log("CategoryFilter - Berhasil mengambil kategori dari API:", fetchedCategories);
-        } else {
-          console.error("Format data kategori tidak valid:", fetchedCategories);
-          setCategories([]);
-          toast({
-            title: "Peringatan",
-            description: "Format data kategori tidak valid",
-            variant: "destructive",
-          });
-        }
+        console.error("Format data kategori tidak valid:", fetchedCategories);
+        setCategories([]);
+        toast({
+          title: "Peringatan",
+          description: "Format data kategori tidak valid",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error("Error saat mengambil kategori:", error);
@@ -86,6 +77,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   }, []);
 
   const handleCategoryClick = (categoryId: string) => {
+    console.log("Kategori dipilih:", categoryId);
     onSelectCategory(categoryId);
     setSheetOpen(false);
   };
@@ -140,46 +132,49 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
             <span>Filter</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-[80vw]">
-          <SheetHeader className="mb-4">
-            <SheetTitle className="flex items-center justify-between">
-              <span>Kategori</span>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleRefresh}
-                  disabled={refreshing}
-                >
-                  <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setSheetOpen(false)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            </SheetTitle>
-          </SheetHeader>
-          <Separator className="mb-4" />
-          <ScrollArea className="h-[calc(100vh-8rem)]">
-            {isLoading ? (
-              <div className="flex items-center justify-center h-20">
-                <p className="text-sm text-muted-foreground">Memuat...</p>
-              </div>
-            ) : (
-              categoryButtons
-            )}
-          </ScrollArea>
+        <SheetContent side="left" className="w-[80vw] p-0">
+          <div className="p-6">
+            <SheetHeader className="mb-4">
+              <SheetTitle className="flex items-center justify-between">
+                <span>Kategori</span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleRefresh}
+                    disabled={refreshing}
+                  >
+                    <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setSheetOpen(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </SheetTitle>
+            </SheetHeader>
+            <Separator className="mb-4" />
+            <ScrollArea className="h-[calc(100vh-8rem)]">
+              {isLoading ? (
+                <div className="flex items-center justify-center h-20">
+                  <p className="text-sm text-muted-foreground">Memuat...</p>
+                </div>
+              ) : (
+                categoryButtons
+              )}
+            </ScrollArea>
+          </div>
         </SheetContent>
       </Sheet>
     );
   }
 
   return (
-    <div className={cn("w-60 hidden md:block", className)}>
+    // Reduced width from w-60 to w-48
+    <div className={cn("w-48 hidden md:block", className)}>
       <div className="flex items-center justify-between mb-4">
         <div className="font-semibold text-lg">Kategori</div>
         <Button
