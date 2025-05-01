@@ -1,3 +1,4 @@
+
 import React from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -76,7 +77,7 @@ const NavItem: React.FC<NavItemProps> = ({
       }
     >
       <Icon className="h-4 w-4" />
-      <span>{label}</span>
+      <span className="truncate">{label}</span>
     </NavLink>
   );
 };
@@ -273,7 +274,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside
       className={cn(
         "border-r bg-background transition-all duration-300 ease-in-out hidden md:block",
-        collapsed ? "w-16" : "w-64"
+        collapsed ? "w-16" : "w-56"
       )}
     >
       {renderSidebarContent()}
