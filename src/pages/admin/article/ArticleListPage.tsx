@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -240,7 +239,7 @@ const ArticleListPage: React.FC = () => {
                       <TableHead className="hidden sm:table-cell w-[25%]">
                         Dibuat
                       </TableHead>
-                      <TableHead className="text-right">Aksi</TableHead>
+                      <TableHead className="text-center">Aksi</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
