@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -210,7 +211,7 @@ const ArticleListPage: React.FC = () => {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="w-full sm:w-60">
+        <div className="w-full sm:w-[180px]">
           <SearchBar
             onSearch={handleSearch}
             placeholder="Cari artikel..."

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -37,7 +38,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
           <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
             {article.title}
           </h3>
-          <p className="text-muted-foreground text-sm line-clamp-3 text-justify text-pretty">
+          <p className="text-muted-foreground text-sm line-clamp-3 text-justify">
             {article.excerpt || article.content.substring(0, 150) + "..."}
           </p>
         </CardContent>
