@@ -1,4 +1,3 @@
-
 import React from "react";
 import { ArticleCard } from "./ArticleCard";
 import { Loading } from "@/components/ui/loading";
