@@ -173,8 +173,8 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   }
 
   return (
-    // Reduced width from w-60 to w-48
-    <div className={cn("w-48 hidden md:block", className)}>
+    // Significantly reduced width from w-48 to w-40, which is closer to the "Semua Kategori" text width
+    <div className={cn("w-40 hidden md:block", className)}>
       <div className="flex items-center justify-between mb-4">
         <div className="font-semibold text-lg">Kategori</div>
         <Button
