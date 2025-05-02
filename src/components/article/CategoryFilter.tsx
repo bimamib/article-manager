@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -185,17 +186,17 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
           onValueChange={handleCategoryClick}
           disabled={isLoading}
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full max-w-[250px]">
             <SelectValue placeholder="Pilih Kategori" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all" key="all">
-              Semua Kategori
-            </SelectItem>
+          <SelectContent className="max-w-[250px]">
+            <SelectItem value="all">Semua</SelectItem>
             {Array.isArray(categories) && categories.length > 0
               ? categories.map((category) => (
                   <SelectItem key={category.id} value={category.id}>
-                    {category.name}
+                    {category.name.length > 20
+                      ? `${category.name.substring(0, 20)}...`
+                      : category.name}
                   </SelectItem>
                 ))
               : !isLoading && (

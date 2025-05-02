@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ArticleGrid } from "@/components/article/ArticleGrid";
@@ -220,7 +219,7 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
               <CategoryFilter
                 selectedCategory={selectedCategory}
                 onSelectCategory={handleCategorySelect}
-                className="w-full"
+                className="w-full sm:max-w-[250px]"
               />
             )}
           </div>

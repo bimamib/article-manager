@@ -234,16 +234,16 @@ const ArticleListPage: React.FC = () => {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4 mb-6">
-        <div className="w-full lg:w-[160px]">
+        <div className="w-full lg:w-[160px] flex flex-col sm:flex-row lg:flex-col gap-4">
           <SearchBar
             onSearch={handleSearch}
             placeholder="Cari artikel..."
-            className="mb-4 w-full"
+            className="w-full sm:max-w-[250px] lg:max-w-none"
           />
           <CategoryFilter
             selectedCategory={selectedCategory}
             onSelectCategory={handleCategorySelect}
-            className="w-full"
+            className="w-full sm:max-w-[250px] lg:max-w-none"
           />
         </div>
 
