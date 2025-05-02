@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ArticleGrid } from "@/components/article/ArticleGrid";
@@ -189,7 +188,7 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
               className={isMobile ? "w-full" : "w-[300px]"}
             />
 
-            {/* Mobile CategoryFilter - only shown on mobile */}
+            {/* Mobile CategoryFilter - now uses Select component */}
             {isMobile && (
               <CategoryFilter
                 selectedCategory={selectedCategory}

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,13 @@ import {
 import { Filter, X, RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CategoryFilterProps {
   selectedCategory: string;
@@ -145,55 +153,34 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     </div>
   );
 
+  // Render Select untuk tampilan mobile
   if (isMobile) {
     return (
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn("flex items-center gap-2", className)}
-          >
-            <Filter className="h-4 w-4" />
-            <span>Filter</span>
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-[80vw]">
-          <SheetHeader className="mb-4">
-            <SheetTitle className="flex items-center justify-between">
-              <span>Kategori</span>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleRefresh}
-                  disabled={refreshing}
-                >
-                  <RefreshCw
-                    className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
-                  />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setSheetOpen(false)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            </SheetTitle>
-          </SheetHeader>
-          <Separator className="mb-4" />
-          <ScrollArea className="h-[calc(100vh-8rem)]">
-            {isLoading ? (
-              <div className="flex items-center justify-center h-20">
-                <p className="text-sm text-muted-foreground">Memuat...</p>
-              </div>
-            ) : (
-              categoryButtons
-            )}
-          </ScrollArea>
-        </SheetContent>
-      </Sheet>
+      <div className={cn("w-full", className)}>
+        <Select
+          value={selectedCategory}
+          onValueChange={handleCategoryClick}
+          disabled={isLoading}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Pilih Kategori" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Semua Kategori</SelectItem>
+            {Array.isArray(categories) && categories.length > 0
+              ? categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))
+              : !isLoading && (
+                  <div className="text-sm text-muted-foreground p-2 text-center">
+                    Tidak ada kategori tersedia
+                  </div>
+                )}
+          </SelectContent>
+        </Select>
+      </div>
     );
   }
 
