@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -31,20 +30,20 @@ const DESKTOP_BREAKPOINT = 1024;
 // Hook kustom untuk mendeteksi apakah layar tablet atau lebih kecil
 const useIsTabletOrMobile = () => {
   const [isTabletOrMobile, setIsTabletOrMobile] = useState<boolean>(false);
-  
+
   useEffect(() => {
     const checkScreenSize = () => {
       setIsTabletOrMobile(window.innerWidth < DESKTOP_BREAKPOINT);
     };
-    
+
     checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    
+    window.addEventListener("resize", checkScreenSize);
+
     return () => {
-      window.removeEventListener('resize', checkScreenSize);
+      window.removeEventListener("resize", checkScreenSize);
     };
   }, []);
-  
+
   return isTabletOrMobile;
 };
 
@@ -190,7 +189,9 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
             <SelectValue placeholder="Pilih Kategori" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all" key="all">Semua Kategori</SelectItem>
+            <SelectItem value="all" key="all">
+              Semua Kategori
+            </SelectItem>
             {Array.isArray(categories) && categories.length > 0
               ? categories.map((category) => (
                   <SelectItem key={category.id} value={category.id}>
@@ -210,7 +211,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
 
   // Render tampilan desktop (sidebar)
   return (
-    <div className={cn("w-[140px] hidden lg:block", className)}>
+    <div className={cn("w-[160px] hidden lg:block", className)}>
       <div className="flex items-center justify-between mb-4">
         <div className="font-semibold text-lg">Kategori</div>
         <Button
