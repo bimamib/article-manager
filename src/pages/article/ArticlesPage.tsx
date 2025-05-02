@@ -119,7 +119,8 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
 
   const handleCategorySelect = (categoryId: string) => {
     console.log("ArticlePage - Kategori dipilih:", categoryId);
-    setSelectedCategory(categoryId);
+    // Convert "all" value back to empty string for API calls
+    setSelectedCategory(categoryId === "all" ? "" : categoryId);
   };
 
   const handleSearch = (query: string) => {
@@ -176,7 +177,7 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
       <div className="flex flex-col md:flex-row gap-4">
         {/* Desktop CategoryFilter with narrower width to match sidebar */}
         <CategoryFilter
-          selectedCategory={selectedCategory}
+          selectedCategory={selectedCategory || "all"}
           onSelectCategory={handleCategorySelect}
           className="hidden md:block"
         />
@@ -191,7 +192,7 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
             {/* Mobile CategoryFilter - now uses Select component */}
             {isMobile && (
               <CategoryFilter
-                selectedCategory={selectedCategory}
+                selectedCategory={selectedCategory || "all"}
                 onSelectCategory={handleCategorySelect}
                 className="w-full"
               />

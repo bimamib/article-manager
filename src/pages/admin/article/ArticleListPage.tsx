@@ -139,7 +139,8 @@ const ArticleListPage: React.FC = () => {
 
   const handleCategorySelect = (categoryId: string) => {
     console.log("ArticleListPage - Kategori dipilih:", categoryId);
-    setSelectedCategory(categoryId);
+    // Convert "all" value back to empty string for API calls
+    setSelectedCategory(categoryId === "all" ? "" : categoryId);
   };
 
   const handlePageChange = (page: number) => {
@@ -217,7 +218,7 @@ const ArticleListPage: React.FC = () => {
             className="mb-4 w-full"
           />
           <CategoryFilter
-            selectedCategory={selectedCategory}
+            selectedCategory={selectedCategory || "all"}
             onSelectCategory={handleCategorySelect}
             className="w-full"
           />

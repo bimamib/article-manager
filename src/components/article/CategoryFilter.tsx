@@ -158,7 +158,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     return (
       <div className={cn("w-full", className)}>
         <Select
-          value={selectedCategory}
+          value={selectedCategory || "all"}
           onValueChange={handleCategoryClick}
           disabled={isLoading}
         >
@@ -166,7 +166,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
             <SelectValue placeholder="Pilih Kategori" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Semua Kategori</SelectItem>
+            <SelectItem value="all" key="all">Semua Kategori</SelectItem>
             {Array.isArray(categories) && categories.length > 0
               ? categories.map((category) => (
                   <SelectItem key={category.id} value={category.id}>
