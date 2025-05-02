@@ -74,7 +74,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-inter;
+    @apply bg-background text-foreground font-inter transition-colors duration-300;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-poppins font-semibold;
@@ -82,7 +82,7 @@
 }
 
 .article-content {
-  @apply prose prose-blue max-w-none;
+  @apply prose prose-blue dark:prose-invert max-w-none;
 }
 
 /* Animation class untuk loading state dan transisi */
@@ -102,4 +102,55 @@
 @keyframes slideIn {
   from { transform: translateY(10px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+}
+
+/* Page transition animations */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Pagination smooth transition */
+.pagination-item-enter {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.pagination-item-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.pagination-item-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.pagination-item-exit-active {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Improve transitions for theme changes */
+.theme-transition {
+  transition: background-color 300ms ease-in-out, color 300ms ease-in-out, border-color 300ms ease-in-out;
 }

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -88,7 +89,10 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
 
   return (
     <div
-      className={cn("flex items-center justify-center gap-1 mt-6", className)}
+      className={cn(
+        "flex items-center justify-center gap-1 mt-6 theme-transition", 
+        className
+      )}
     >
       <div className="flex items-center gap-1">
         <Button
@@ -96,7 +100,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
           size={buttonSize}
           onClick={() => handlePageChange(1)}
           disabled={current_page === 1}
-          className={mobileButtonClass}
+          className={cn(mobileButtonClass, "transition-all duration-300")}
         >
           <ChevronsLeft className="h-3 w-3" />
           <span className="sr-only">First Page</span>
@@ -107,7 +111,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
           size={buttonSize}
           onClick={() => handlePageChange(current_page - 1)}
           disabled={current_page === 1}
-          className={mobileButtonClass}
+          className={cn(mobileButtonClass, "transition-all duration-300")}
         >
           <ChevronLeft className="h-3 w-3" />
           <span className="sr-only">Previous Page</span>
@@ -119,7 +123,11 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
             variant={current_page === page ? "default" : "outline"}
             size={buttonSize}
             onClick={() => handlePageChange(page)}
-            className={cn(mobileButtonClass, "font-medium")}
+            className={cn(
+              mobileButtonClass, 
+              "font-medium transition-all duration-300",
+              current_page === page ? "transform scale-110" : ""
+            )}
           >
             {page}
           </Button>
@@ -130,7 +138,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
           size={buttonSize}
           onClick={() => handlePageChange(current_page + 1)}
           disabled={current_page === total_pages}
-          className={mobileButtonClass}
+          className={cn(mobileButtonClass, "transition-all duration-300")}
         >
           <ChevronRight className="h-3 w-3" />
           <span className="sr-only">Next Page</span>
@@ -141,7 +149,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
           size={buttonSize}
           onClick={() => handlePageChange(total_pages)}
           disabled={current_page === total_pages}
-          className={mobileButtonClass}
+          className={cn(mobileButtonClass, "transition-all duration-300")}
         >
           <ChevronsRight className="h-3 w-3" />
           <span className="sr-only">Last Page</span>

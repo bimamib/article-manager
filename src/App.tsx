@@ -1,11 +1,12 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RequireAuth } from "@/components/RequireAuth";
+import { useEffect } from "react";
 
 // Auth pages
 import LoginPage from "@/pages/auth/LoginPage";
@@ -35,6 +36,21 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
+  // Initialize theme from localStorage or system preference
+  useEffect(() => {
+    const root = window.document.documentElement;
+    const theme = localStorage.getItem("theme") || "system";
+    
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else if (theme === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (systemTheme) {
+        root.classList.add("dark");
+      }
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
