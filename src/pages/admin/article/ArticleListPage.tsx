@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -37,20 +36,20 @@ import { formatDate } from "@/lib/utils";
 // Kustom hook untuk mendeteksi tampilan desktop (diatas 1024px)
 const useIsDesktop = () => {
   const [isDesktop, setIsDesktop] = useState<boolean>(false);
-  
+
   useEffect(() => {
     const checkScreenSize = () => {
       setIsDesktop(window.innerWidth >= 1024);
     };
-    
+
     checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    
+    window.addEventListener("resize", checkScreenSize);
+
     return () => {
-      window.removeEventListener('resize', checkScreenSize);
+      window.removeEventListener("resize", checkScreenSize);
     };
   }, []);
-  
+
   return isDesktop;
 };
 
@@ -235,7 +234,7 @@ const ArticleListPage: React.FC = () => {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4 mb-6">
-        <div className="w-full lg:w-[140px]">
+        <div className="w-full lg:w-[160px]">
           <SearchBar
             onSearch={handleSearch}
             placeholder="Cari artikel..."
