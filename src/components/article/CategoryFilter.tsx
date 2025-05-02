@@ -25,6 +25,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// Tentukan breakpoint untuk desktop (diatas 1024px)
+const DESKTOP_BREAKPOINT = 1024;
+
+// Hook kustom untuk mendeteksi apakah layar tablet atau lebih kecil
+const useIsTabletOrMobile = () => {
+  const [isTabletOrMobile, setIsTabletOrMobile] = useState<boolean>(false);
+  
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsTabletOrMobile(window.innerWidth < DESKTOP_BREAKPOINT);
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => {
+      window.removeEventListener('resize', checkScreenSize);
+    };
+  }, []);
+  
+  return isTabletOrMobile;
+};
+
 interface CategoryFilterProps {
   selectedCategory: string;
   onSelectCategory: (categoryId: string) => void;
@@ -41,6 +64,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
   const isMobile = useIsMobile();
+  const isTabletOrMobile = useIsTabletOrMobile();
   const { toast } = useToast();
 
   const fetchCategories = async (forceRefresh: boolean = true) => {
@@ -128,9 +152,9 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   const categoryButtons = (
     <div className="space-y-1">
       <Button
-        variant={selectedCategory === "" ? "default" : "ghost"}
+        variant={selectedCategory === "all" ? "default" : "ghost"}
         className="w-full justify-start"
-        onClick={() => handleCategoryClick("")}
+        onClick={() => handleCategoryClick("all")}
       >
         Semua Kategori
       </Button>
@@ -153,8 +177,8 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     </div>
   );
 
-  // Render Select untuk tampilan mobile
-  if (isMobile) {
+  // Render Select untuk tampilan mobile dan tablet
+  if (isTabletOrMobile) {
     return (
       <div className={cn("w-full", className)}>
         <Select
@@ -184,8 +208,9 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     );
   }
 
+  // Render tampilan desktop (sidebar)
   return (
-    <div className={cn("w-[140px] hidden md:block", className)}>
+    <div className={cn("w-[140px] hidden lg:block", className)}>
       <div className="flex items-center justify-between mb-4">
         <div className="font-semibold text-lg">Kategori</div>
         <Button

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ArticleGrid } from "@/components/article/ArticleGrid";
@@ -10,6 +11,26 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+
+// Kustom hook untuk mendeteksi tampilan desktop (diatas 1024px)
+const useIsDesktop = () => {
+  const [isDesktop, setIsDesktop] = useState<boolean>(false);
+  
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => {
+      window.removeEventListener('resize', checkScreenSize);
+    };
+  }, []);
+  
+  return isDesktop;
+};
 
 interface ArticlesPageProps {
   isExplore?: boolean;
@@ -26,10 +47,11 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const isMobile = useIsMobile();
+  const isDesktop = useIsDesktop();
   const { toast } = useToast();
 
   const fetchArticles = async (forceRefresh: boolean = true) => {
@@ -45,12 +67,15 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
         category: selectedCategory,
       });
 
+      // Konversi "all" menjadi string kosong untuk API
+      const categoryParam = selectedCategory === "all" ? "" : selectedCategory;
+
       // Always get from API through the service when filters change
       const response: PaginatedResponse<Article> =
         await articleService.getArticles(
           currentPage,
           searchQuery,
-          selectedCategory,
+          categoryParam,
           forceRefresh
         );
 
@@ -119,8 +144,7 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
 
   const handleCategorySelect = (categoryId: string) => {
     console.log("ArticlePage - Kategori dipilih:", categoryId);
-    // Convert "all" value back to empty string for API calls
-    setSelectedCategory(categoryId === "all" ? "" : categoryId);
+    setSelectedCategory(categoryId);
   };
 
   const handleSearch = (query: string) => {
@@ -174,13 +198,15 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4">
-        {/* Desktop CategoryFilter with narrower width to match sidebar */}
-        <CategoryFilter
-          selectedCategory={selectedCategory || "all"}
-          onSelectCategory={handleCategorySelect}
-          className="hidden md:block"
-        />
+      <div className="flex flex-col lg:flex-row gap-4">
+        {/* Desktop CategoryFilter dengan sidebar */}
+        {isDesktop && (
+          <CategoryFilter
+            selectedCategory={selectedCategory}
+            onSelectCategory={handleCategorySelect}
+            className="hidden lg:block"
+          />
+        )}
 
         <div className="flex-1">
           <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
@@ -189,10 +215,10 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
               className={isMobile ? "w-full" : "w-[300px]"}
             />
 
-            {/* Mobile CategoryFilter - now uses Select component */}
-            {isMobile && (
+            {/* Mobile & Tablet CategoryFilter - menggunakan Select component */}
+            {!isDesktop && (
               <CategoryFilter
-                selectedCategory={selectedCategory || "all"}
+                selectedCategory={selectedCategory}
                 onSelectCategory={handleCategorySelect}
                 className="w-full"
               />

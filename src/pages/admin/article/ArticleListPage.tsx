@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -33,6 +34,26 @@ import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatDate } from "@/lib/utils";
 
+// Kustom hook untuk mendeteksi tampilan desktop (diatas 1024px)
+const useIsDesktop = () => {
+  const [isDesktop, setIsDesktop] = useState<boolean>(false);
+  
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => {
+      window.removeEventListener('resize', checkScreenSize);
+    };
+  }, []);
+  
+  return isDesktop;
+};
+
 const ArticleListPage: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [pagination, setPagination] = useState({
@@ -45,9 +66,10 @@ const ArticleListPage: React.FC = () => {
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const isDesktop = useIsDesktop();
 
   const fetchArticles = async (forceRefresh: boolean = true) => {
     setIsLoading(true);
@@ -62,11 +84,14 @@ const ArticleListPage: React.FC = () => {
         category: selectedCategory,
       });
 
+      // Konversi "all" menjadi string kosong untuk API
+      const categoryParam = selectedCategory === "all" ? "" : selectedCategory;
+
       const response: PaginatedResponse<Article> =
         await articleService.getArticles(
           currentPage,
           searchQuery,
-          selectedCategory,
+          categoryParam,
           forceRefresh
         );
 
@@ -139,8 +164,7 @@ const ArticleListPage: React.FC = () => {
 
   const handleCategorySelect = (categoryId: string) => {
     console.log("ArticleListPage - Kategori dipilih:", categoryId);
-    // Convert "all" value back to empty string for API calls
-    setSelectedCategory(categoryId === "all" ? "" : categoryId);
+    setSelectedCategory(categoryId);
   };
 
   const handlePageChange = (page: number) => {
@@ -210,15 +234,15 @@ const ArticleListPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="w-full sm:w-[140px]">
+      <div className="flex flex-col lg:flex-row gap-4 mb-6">
+        <div className="w-full lg:w-[140px]">
           <SearchBar
             onSearch={handleSearch}
             placeholder="Cari artikel..."
             className="mb-4 w-full"
           />
           <CategoryFilter
-            selectedCategory={selectedCategory || "all"}
+            selectedCategory={selectedCategory}
             onSelectCategory={handleCategorySelect}
             className="w-full"
           />
