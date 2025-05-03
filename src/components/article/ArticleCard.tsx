@@ -23,17 +23,17 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
           />
         </div>
         <CardContent className="pt-4 pb-2 flex-grow">
-          <div className="flex flex-col sm:flex-row items-start justify-between gap-2 mb-2">
-            <Badge
-              variant="outline"
-              className="bg-primary/10 hover:bg-primary/20 whitespace-nowrap"
-            >
-              {article.category_name || "Uncategorized"}
-            </Badge>
+          <div className="flex flex-row items-center justify-between gap-2 mb-2">
             <div className="text-xs text-muted-foreground flex items-center whitespace-nowrap">
               <CalendarDays className="h-3 w-3 mr-1" />
               {formatDate(article.created_at)}
             </div>
+            <Badge
+              variant="outline"
+              className="bg-primary/10 hover:bg-primary/20 whitespace-nowrap ml-auto"
+            >
+              {article.category_name || "Uncategorized"}
+            </Badge>
           </div>
           <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
             {article.title}

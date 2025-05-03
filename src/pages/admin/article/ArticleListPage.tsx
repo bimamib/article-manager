@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -235,20 +234,40 @@ const ArticleListPage: React.FC = () => {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4 mb-6">
-        <div className="w-full lg:w-[160px] flex flex-col sm:flex-row lg:flex-col gap-4">
-          <SearchBar
-            onSearch={handleSearch}
-            placeholder="Cari artikel..."
-            className="w-full sm:max-w-[250px] lg:max-w-none"
-          />
-          <CategoryFilter
-            selectedCategory={selectedCategory}
-            onSelectCategory={handleCategorySelect}
-            className="w-full sm:max-w-[120px] lg:max-w-none ml-auto sm:ml-0"
-          />
+        <div className="w-full lg:w-[160px]">
+          {isDesktop ? (
+            <CategoryFilter
+              selectedCategory={selectedCategory}
+              onSelectCategory={handleCategorySelect}
+              className="w-full"
+            />
+          ) : (
+            <div className="search-and-filter-container flex items-center gap-4 w-full">
+              <SearchBar
+                onSearch={handleSearch}
+                placeholder="Cari artikel..."
+                className="flex-1"
+              />
+              <CategoryFilter
+                selectedCategory={selectedCategory}
+                onSelectCategory={handleCategorySelect}
+                className="mobile-select-compact"
+              />
+            </div>
+          )}
         </div>
 
         <div className="flex-1">
+          {isDesktop && (
+            <div className="mb-6">
+              <SearchBar
+                onSearch={handleSearch}
+                placeholder="Cari artikel..."
+                className="w-full sm:max-w-[300px]"
+              />
+            </div>
+          )}
+          
           {isLoading ? (
             <Loading />
           ) : !articles || articles.length === 0 ? (

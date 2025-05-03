@@ -211,6 +211,15 @@ a, button {
   }
   
   .mobile-select-compact {
-    max-width: 120px;
+    max-width: 100px;
+  }
+  
+  /* Fix for search and category filter layout */
+  .search-and-filter-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 1rem;
   }
 }

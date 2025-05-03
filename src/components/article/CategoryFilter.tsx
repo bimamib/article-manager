@@ -179,16 +179,16 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   // Render Select untuk tampilan mobile dan tablet
   if (isTabletOrMobile) {
     return (
-      <div className={cn("w-full", className)}>
+      <div className={cn("w-full flex justify-end", className)}>
         <Select
           value={selectedCategory || "all"}
           onValueChange={handleCategoryClick}
           disabled={isLoading}
         >
-          <SelectTrigger className="w-[120px] ml-auto">
+          <SelectTrigger className="w-[100px] md:w-[120px]">
             <SelectValue placeholder="Kategori" />
           </SelectTrigger>
-          <SelectContent className="max-w-[180px]">
+          <SelectContent className="max-w-[150px]">
             <SelectItem value="all">Semua</SelectItem>
             {Array.isArray(categories) && categories.length > 0
               ? categories.map((category) => (

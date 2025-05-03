@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ArticleGrid } from "@/components/article/ArticleGrid";
@@ -205,10 +204,10 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
           )}
 
           <div className="flex-1">
-            <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6 items-center mobile-filter-row">
+            <div className="search-and-filter-container flex items-center gap-4 mb-6">
               <SearchBar
                 onSearch={handleSearch}
-                className={isMobile ? "w-full sm:flex-1" : "w-[300px]"}
+                className={isMobile ? "flex-1" : "w-[300px]"}
               />
 
               {/* Mobile & Tablet CategoryFilter - using Select component */}
