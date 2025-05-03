@@ -85,7 +85,7 @@
   @apply prose prose-blue dark:prose-invert max-w-none;
 }
 
-/* Animation class untuk loading state dan transisi */
+/* Animation class for loading state and transitions */
 .fade-in {
   animation: fadeIn 0.3s ease-in-out;
 }
@@ -153,4 +153,36 @@
 /* Improve transitions for theme changes */
 .theme-transition {
   transition: background-color 300ms ease-in-out, color 300ms ease-in-out, border-color 300ms ease-in-out;
+}
+
+/* Layout improvements for 1024px screens */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .lg\:container {
+    max-width: 960px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .article-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+}
+
+/* Fix card layout at specific breakpoints */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .article-card {
+    max-width: calc(50% - 1rem);
+  }
+}
+
+/* Global transition for links and buttons */
+a, button {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Fix for page transition flicker */
+.route-transition {
+  position: relative;
+  will-change: transform, opacity;
 }

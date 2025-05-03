@@ -1,12 +1,13 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useEffect } from "react";
+import { AnimatePresence } from "framer-motion";
 
 // Auth pages
 import LoginPage from "@/pages/auth/LoginPage";
@@ -35,6 +36,101 @@ const queryClient = new QueryClient({
   },
 });
 
+// AnimatedRoutes component for page transitions
+const AnimatedRoutes = () => {
+  const location = useLocation();
+  
+  return (
+    <AnimatePresence mode="wait">
+      <Routes key={location.pathname} location={location}>
+        {/* Public Routes */}
+        <Route path="/" element={<Index />} />
+        <Route path="/auth/login" element={<LoginPage />} />
+        <Route path="/auth/register" element={<RegisterPage />} />
+        
+        {/* Protected User Routes */}
+        <Route 
+          path="/articles" 
+          element={
+            <RequireAuth>
+              <ArticlesPage />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/articles/explore" 
+          element={
+            <RequireAuth>
+              <ArticlesPage isExplore={true} />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/articles/:id" 
+          element={
+            <RequireAuth>
+              <ArticleDetailPage />
+            </RequireAuth>
+          } 
+        />
+        
+        {/* Protected Admin Routes */}
+        <Route 
+          path="/admin/categories" 
+          element={
+            <RequireAuth requireAdmin>
+              <CategoryListPage />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/admin/categories/create" 
+          element={
+            <RequireAuth requireAdmin>
+              <CategoryFormPage />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/admin/categories/edit/:id" 
+          element={
+            <RequireAuth requireAdmin>
+              <CategoryFormPage />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/admin/articles" 
+          element={
+            <RequireAuth requireAdmin>
+              <ArticleListPage />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/admin/articles/create" 
+          element={
+            <RequireAuth requireAdmin>
+              <ArticleFormPage />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/admin/articles/edit/:id" 
+          element={
+            <RequireAuth requireAdmin>
+              <ArticleFormPage />
+            </RequireAuth>
+          } 
+        />
+        
+        {/* Not Found Route */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </AnimatePresence>
+  );
+};
+
 const App = () => {
   // Initialize theme from localStorage or system preference
   useEffect(() => {
@@ -56,91 +152,7 @@ const App = () => {
       <TooltipProvider>
         <Router>
           <AuthProvider>
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Index />} />
-              <Route path="/auth/login" element={<LoginPage />} />
-              <Route path="/auth/register" element={<RegisterPage />} />
-              
-              {/* Protected User Routes */}
-              <Route 
-                path="/articles" 
-                element={
-                  <RequireAuth>
-                    <ArticlesPage />
-                  </RequireAuth>
-                } 
-              />
-              <Route 
-                path="/articles/explore" 
-                element={
-                  <RequireAuth>
-                    <ArticlesPage isExplore={true} />
-                  </RequireAuth>
-                } 
-              />
-              <Route 
-                path="/articles/:id" 
-                element={
-                  <RequireAuth>
-                    <ArticleDetailPage />
-                  </RequireAuth>
-                } 
-              />
-              
-              {/* Protected Admin Routes */}
-              <Route 
-                path="/admin/categories" 
-                element={
-                  <RequireAuth requireAdmin>
-                    <CategoryListPage />
-                  </RequireAuth>
-                } 
-              />
-              <Route 
-                path="/admin/categories/create" 
-                element={
-                  <RequireAuth requireAdmin>
-                    <CategoryFormPage />
-                  </RequireAuth>
-                } 
-              />
-              <Route 
-                path="/admin/categories/edit/:id" 
-                element={
-                  <RequireAuth requireAdmin>
-                    <CategoryFormPage />
-                  </RequireAuth>
-                } 
-              />
-              <Route 
-                path="/admin/articles" 
-                element={
-                  <RequireAuth requireAdmin>
-                    <ArticleListPage />
-                  </RequireAuth>
-                } 
-              />
-              <Route 
-                path="/admin/articles/create" 
-                element={
-                  <RequireAuth requireAdmin>
-                    <ArticleFormPage />
-                  </RequireAuth>
-                } 
-              />
-              <Route 
-                path="/admin/articles/edit/:id" 
-                element={
-                  <RequireAuth requireAdmin>
-                    <ArticleFormPage />
-                  </RequireAuth>
-                } 
-              />
-              
-              {/* Not Found Route */}
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
+            <AnimatedRoutes />
             <Toaster />
             <Sonner />
           </AuthProvider>

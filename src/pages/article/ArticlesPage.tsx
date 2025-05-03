@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ArticleGrid } from "@/components/article/ArticleGrid";
@@ -10,8 +11,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { motion } from "framer-motion";
 
-// Kustom hook untuk mendeteksi tampilan desktop (diatas 1024px)
+// Custom hook for detecting desktop view (above 1024px)
 const useIsDesktop = () => {
   const [isDesktop, setIsDesktop] = useState<boolean>(false);
   
@@ -53,20 +55,17 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
   const isDesktop = useIsDesktop();
   const { toast } = useToast();
 
+  // Animation variants
+  const pageVariants = {
+    initial: { opacity: 0, y: 10 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+    exit: { opacity: 0, y: -10, transition: { duration: 0.2 } }
+  };
+
   const fetchArticles = async (forceRefresh: boolean = true) => {
     setIsLoading(true);
     try {
-      console.log(
-        "ArticlePage - Memulai pengambilan artikel, forceRefresh:",
-        forceRefresh
-      );
-      console.log("ArticlePage - Parameter:", {
-        page: currentPage,
-        search: searchQuery,
-        category: selectedCategory,
-      });
-
-      // Konversi "all" menjadi string kosong untuk API
+      // Convert "all" to empty string for API
       const categoryParam = selectedCategory === "all" ? "" : selectedCategory;
 
       // Always get from API through the service when filters change
@@ -78,17 +77,15 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
           forceRefresh
         );
 
-      console.log("ArticlePage - Artikel yang diambil:", response.data);
-
-      // Pastikan data artikel adalah array
+      // Ensure articles data is an array
       if (Array.isArray(response.data)) {
         setArticles(response.data);
       } else {
-        console.error("Format data artikel tidak valid:", response.data);
+        console.error("Invalid article data format:", response.data);
         setArticles([]);
         toast({
-          title: "Peringatan",
-          description: "Format data artikel tidak valid",
+          title: "Warning",
+          description: "Invalid article data format",
           variant: "destructive",
         });
       }
@@ -102,10 +99,10 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
         }
       );
     } catch (error) {
-      console.error("Error mengambil artikel:", error);
+      console.error("Error fetching articles:", error);
       toast({
         title: "Error",
-        description: "Gagal mengambil artikel",
+        description: "Failed to fetch articles",
         variant: "destructive",
       });
       // Set empty state on error
@@ -124,25 +121,21 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
 
   // Fetch articles when component mounts with force refresh
   useEffect(() => {
-    console.log("ArticlePage - Komponen dimuat, memaksa refresh");
-    fetchArticles(true); // Selalu paksa refresh saat komponen dimuat
+    fetchArticles(true);
   }, []);
 
   // Re-fetch with force refresh when search or category changes
   useEffect(() => {
-    console.log("ArticlePage - Pencarian atau kategori berubah");
     setCurrentPage(1); // Reset page to 1 when filters change
     fetchArticles(true); // Force refresh when filters change
   }, [searchQuery, selectedCategory]);
 
   // Re-fetch when page changes
   useEffect(() => {
-    console.log("ArticlePage - Halaman berubah:", currentPage);
     fetchArticles(true); // Always force refresh when page changes
   }, [currentPage]);
 
   const handleCategorySelect = (categoryId: string) => {
-    console.log("ArticlePage - Kategori dipilih:", categoryId);
     setSelectedCategory(categoryId);
   };
 
@@ -151,87 +144,99 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
   };
 
   const handlePageChange = (page: number) => {
-    console.log(
-      "ArticlePage - handlePageChange dipanggil dengan halaman:",
-      page
-    );
     setCurrentPage(page);
-    window.scrollTo(0, 0);
+    // Smooth scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleRefresh = async () => {
-    console.log("Tombol refresh ditekan, memaksa refresh data");
     setRefreshing(true);
     await fetchArticles(true);
 
     toast({
-      title: "Berhasil",
-      description: "Data artikel berhasil diperbarui",
+      title: "Success",
+      description: "Articles data successfully updated",
     });
   };
 
   return (
     <Layout>
-      <div className="mb-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">
-              {isExplore ? "Jelajahi Artikel" : "Artikel Saya"}
-            </h1>
-            <p className="text-muted-foreground">
-              {isExplore
-                ? "Temukan artikel dan wawasan terbaru"
-                : "Artikel yang Anda bookmark atau sukai"}
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            onClick={handleRefresh}
-            disabled={refreshing}
-          >
-            <RefreshCw
-              className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
-            />
-            {refreshing ? "Memuat..." : "Refresh"}
-          </Button>
-        </div>
-      </div>
-
-      <div className="flex flex-col lg:flex-row gap-4">
-        {/* Desktop CategoryFilter dengan sidebar */}
-        {isDesktop && (
-          <CategoryFilter
-            selectedCategory={selectedCategory}
-            onSelectCategory={handleCategorySelect}
-            className="hidden lg:block"
-          />
-        )}
-
-        <div className="flex-1">
-          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-            <SearchBar
-              onSearch={handleSearch}
-              className={isMobile ? "w-full" : "w-[300px]"}
-            />
-
-            {/* Mobile & Tablet CategoryFilter - menggunakan Select component */}
-            {!isDesktop && (
-              <CategoryFilter
-                selectedCategory={selectedCategory}
-                onSelectCategory={handleCategorySelect}
-                className="w-full sm:max-w-[250px]"
+      <motion.div
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        variants={pageVariants}
+        className="route-transition"
+      >
+        <div className="mb-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">
+                {isExplore ? "Explore Articles" : "My Articles"}
+              </h1>
+              <p className="text-muted-foreground">
+                {isExplore
+                  ? "Discover the latest articles and insights"
+                  : "Articles you've bookmarked or liked"}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="transition-all duration-300 hover:scale-105"
+            >
+              <RefreshCw
+                className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
               />
-            )}
+              {refreshing ? "Loading..." : "Refresh"}
+            </Button>
           </div>
-
-          <ArticleGrid articles={articles} isLoading={isLoading} />
-
-          <PaginationControls
-            pagination={pagination}
-            onPageChange={handlePageChange}
-          />
         </div>
-      </div>
+
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Desktop CategoryFilter with sidebar */}
+          {isDesktop && (
+            <CategoryFilter
+              selectedCategory={selectedCategory}
+              onSelectCategory={handleCategorySelect}
+              className="hidden lg:block"
+            />
+          )}
+
+          <div className="flex-1">
+            <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+              <SearchBar
+                onSearch={handleSearch}
+                className={isMobile ? "w-full" : "w-[300px]"}
+              />
+
+              {/* Mobile & Tablet CategoryFilter - using Select component */}
+              {!isDesktop && (
+                <CategoryFilter
+                  selectedCategory={selectedCategory}
+                  onSelectCategory={handleCategorySelect}
+                  className="w-full sm:max-w-[250px]"
+                />
+              )}
+            </div>
+
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="article-grid"
+            >
+              <ArticleGrid articles={articles} isLoading={isLoading} />
+            </motion.div>
+
+            <PaginationControls
+              pagination={pagination}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        </div>
+      </motion.div>
     </Layout>
   );
 };

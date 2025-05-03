@@ -36,34 +36,26 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
   const { current_page, total_pages } = pagination;
 
   const handlePageChange = (page: number) => {
-    console.log("PaginationControls - Mencoba mengubah halaman ke:", page);
-    console.log("PaginationControls - Validasi:", {
-      currentPage: current_page,
-      totalPages: total_pages,
-      isValid: !(page < 1 || page > total_pages || page === current_page),
-    });
-
+    console.log("PaginationControls - Attempting to change page to:", page);
+    
     if (page < 1 || page > total_pages) {
-      console.log("PaginationControls - Halaman tidak valid:", page);
+      console.log("PaginationControls - Invalid page:", page);
       return;
     }
 
     if (page === current_page) {
-      console.log("PaginationControls - Sudah di halaman yang sama:", page);
+      console.log("PaginationControls - Already on page:", page);
       return;
     }
 
-    console.log(
-      "PaginationControls - Memanggil onPageChange dengan halaman:",
-      page
-    );
+    console.log("PaginationControls - Calling onPageChange with page:", page);
     onPageChange(page);
   };
 
   // Create an array of page numbers to display
   const getPageNumbers = () => {
     const pages = [];
-    const maxPagesToShow = 3;
+    const maxPagesToShow = isMobile ? 3 : 5;
 
     let startPage = Math.max(1, current_page - Math.floor(maxPagesToShow / 2));
     const endPage = Math.min(total_pages, startPage + maxPagesToShow - 1);
@@ -100,7 +92,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
           size={buttonSize}
           onClick={() => handlePageChange(1)}
           disabled={current_page === 1}
-          className={cn(mobileButtonClass, "transition-all duration-300")}
+          className={cn(mobileButtonClass, "transition-all duration-300 hover:scale-105")}
         >
           <ChevronsLeft className="h-3 w-3" />
           <span className="sr-only">First Page</span>
@@ -111,7 +103,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
           size={buttonSize}
           onClick={() => handlePageChange(current_page - 1)}
           disabled={current_page === 1}
-          className={cn(mobileButtonClass, "transition-all duration-300")}
+          className={cn(mobileButtonClass, "transition-all duration-300 hover:scale-105")}
         >
           <ChevronLeft className="h-3 w-3" />
           <span className="sr-only">Previous Page</span>
@@ -126,7 +118,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
             className={cn(
               mobileButtonClass, 
               "font-medium transition-all duration-300",
-              current_page === page ? "transform scale-110" : ""
+              current_page === page ? "transform scale-110" : "hover:scale-105"
             )}
           >
             {page}
@@ -138,7 +130,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
           size={buttonSize}
           onClick={() => handlePageChange(current_page + 1)}
           disabled={current_page === total_pages}
-          className={cn(mobileButtonClass, "transition-all duration-300")}
+          className={cn(mobileButtonClass, "transition-all duration-300 hover:scale-105")}
         >
           <ChevronRight className="h-3 w-3" />
           <span className="sr-only">Next Page</span>
@@ -149,7 +141,7 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
           size={buttonSize}
           onClick={() => handlePageChange(total_pages)}
           disabled={current_page === total_pages}
-          className={cn(mobileButtonClass, "transition-all duration-300")}
+          className={cn(mobileButtonClass, "transition-all duration-300 hover:scale-105")}
         >
           <ChevronsRight className="h-3 w-3" />
           <span className="sr-only">Last Page</span>
