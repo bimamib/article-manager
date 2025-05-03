@@ -1,10 +1,10 @@
-
 // User types
 export interface User {
   id: string;
   name: string;
   email: string;
   role: "user" | "admin";
+  avatar?: string; // Added avatar property as optional
 }
 
 export interface AuthResponse {
