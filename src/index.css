@@ -171,7 +171,15 @@
   /* Fix badge and date alignment at 1024px */
   .article-card-meta {
     flex-direction: column;
+    align-items: flex-start;
     gap: 0.5rem;
+  }
+  
+  .article-grid .badge {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
@@ -191,4 +199,18 @@ a, button {
 .route-transition {
   position: relative;
   will-change: transform, opacity;
+}
+
+/* Mobile layout improvements */
+@media (max-width: 767px) {
+  .mobile-filter-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .mobile-select-compact {
+    max-width: 120px;
+  }
 }

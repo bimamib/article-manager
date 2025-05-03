@@ -185,16 +185,16 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
           onValueChange={handleCategoryClick}
           disabled={isLoading}
         >
-          <SelectTrigger className="w-full max-w-[250px]">
-            <SelectValue placeholder="Pilih Kategori" />
+          <SelectTrigger className="w-[120px] ml-auto">
+            <SelectValue placeholder="Kategori" />
           </SelectTrigger>
-          <SelectContent className="max-w-[250px]">
+          <SelectContent className="max-w-[180px]">
             <SelectItem value="all">Semua</SelectItem>
             {Array.isArray(categories) && categories.length > 0
               ? categories.map((category) => (
                   <SelectItem key={category.id} value={category.id}>
-                    {category.name.length > 20
-                      ? `${category.name.substring(0, 20)}...`
+                    {category.name.length > 15
+                      ? `${category.name.substring(0, 15)}...`
                       : category.name}
                   </SelectItem>
                 ))
