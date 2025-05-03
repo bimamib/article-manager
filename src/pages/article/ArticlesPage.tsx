@@ -205,10 +205,10 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
           )}
 
           <div className="flex-1">
-            <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6 items-center mobile-filter-row">
               <SearchBar
                 onSearch={handleSearch}
-                className={isMobile ? "w-full" : "w-[300px]"}
+                className={isMobile ? "w-full sm:flex-1" : "w-[300px]"}
               />
 
               {/* Mobile & Tablet CategoryFilter - using Select component */}
@@ -216,7 +216,7 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
                 <CategoryFilter
                   selectedCategory={selectedCategory}
                   onSelectCategory={handleCategorySelect}
-                  className="w-full sm:max-w-[250px]"
+                  className="mobile-select-compact"
                 />
               )}
             </div>

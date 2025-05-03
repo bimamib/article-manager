@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -172,7 +173,7 @@ const ArticleListPage: React.FC = () => {
       page
     );
     setCurrentPage(page);
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleRefresh = async () => {
@@ -243,7 +244,7 @@ const ArticleListPage: React.FC = () => {
           <CategoryFilter
             selectedCategory={selectedCategory}
             onSelectCategory={handleCategorySelect}
-            className="w-full sm:max-w-[250px] lg:max-w-none"
+            className="w-full sm:max-w-[120px] lg:max-w-none ml-auto sm:ml-0"
           />
         </div>
 
