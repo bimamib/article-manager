@@ -21,22 +21,12 @@ export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
           <Menu className="h-5 w-5" />
         </Button>
         <Link to="/" className="flex items-center">
-          <img
-            src="/placeholder.svg"
-            alt="Logo"
-            className="h-8 w-8 mr-2"
-          />
           <h1 className="text-lg font-bold">ArticlesHub</h1>
         </Link>
       </div>
 
       <div className="hidden md:flex md:items-center">
         <Link to="/" className="flex items-center">
-          <img
-            src="/placeholder.svg"
-            alt="Logo"
-            className="h-8 w-8 mr-2"
-          />
           <h1 className="text-lg font-bold">ArticlesHub</h1>
         </Link>
       </div>

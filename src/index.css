@@ -167,6 +167,12 @@
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1rem;
   }
+  
+  /* Fix badge and date alignment at 1024px */
+  .article-card-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }
 
 /* Fix card layout at specific breakpoints */

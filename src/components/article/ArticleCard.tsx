@@ -23,14 +23,14 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
           />
         </div>
         <CardContent className="pt-4 pb-2 flex-grow">
-          <div className="flex items-start justify-between mb-2">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-2 mb-2">
             <Badge
               variant="outline"
-              className="bg-primary/10 hover:bg-primary/20"
+              className="bg-primary/10 hover:bg-primary/20 whitespace-nowrap"
             >
               {article.category_name || "Uncategorized"}
             </Badge>
-            <div className="text-xs text-muted-foreground flex items-center">
+            <div className="text-xs text-muted-foreground flex items-center whitespace-nowrap">
               <CalendarDays className="h-3 w-3 mr-1" />
               {formatDate(article.created_at)}
             </div>
