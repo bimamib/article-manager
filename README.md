@@ -1,75 +1,85 @@
 ## Home Test Frontend Web Developer
 
-Website manajemen artikel dengan role User dan Admin.
+Website manajemen artikel dengan dua role: **User** dan **Admin**.
 
-1. User
-   a. Authentication
+---
 
-   1. Login dengan validasi form
-   2. Register dengan validasi form.
-   3. Setelah login/register sukses, redirect ke halaman list artikel.
+### 1. User
 
-   b. List Artikel
+#### a. Authentication
 
-   1. Filter artikel berdasarkan kategori.
-   2. Searching artikel, dengan debounce (300-500ms).
-   3. Pagination, jika data lebih dari 9 item.
+- Login dengan validasi form
+- Register dengan validasi form
+- Setelah login/register sukses, redirect ke halaman list artikel
 
-   c. Detail Artikel
+#### b. List Artikel
 
-   1. Detail artikel, tampilkan konten lengkap.
-   2. Other articles, tampilkan maksimal 3 artikel dari kategori yang sama dengan artikel yang sedang dilihat user.
+- Filter artikel berdasarkan kategori
+- Searching artikel dengan debounce (300–500ms)
+- Pagination jika data lebih dari 9 item
 
-2. Admin
-   a. Authentication
+#### c. Detail Artikel
 
-   1. Login dengan validasi form
-   2. Register dengan validasi form.
-   3. Setelah login/register sukses, redirect ke halaman list artikel.
-   4. Logout dengan redirect ke halaman login.
+- Tampilkan konten lengkap dari artikel
+- Other Articles:
+  - Tampilkan maksimal 3 artikel dari kategori yang sama dengan artikel yang sedang dilihat user
 
-   b. List Categories
+---
 
-   1. Searching category, dengan debounce (300-500ms)
-   2. Terapkan pagination, jika data lebih dari 10 items
+### 2. Admin
 
-   c. Create Category
+#### a. Authentication
 
-   - Terapkan form validation.
+- Login dengan validasi form
+- Register dengan validasi form
+- Setelah login/register sukses, redirect ke halaman list artikel
+- Logout dengan redirect ke halaman login
 
-   d. Edit Category
+#### b. List Categories
 
-   - Terapkan form validation.
+- Searching category dengan debounce (300–500ms)
+- Pagination jika data lebih dari 10 item
 
-   e. List artikel
+#### c. Create Category
 
-   1. Filter artikel berdasarkan kategori
-   2. Searching artikel, dengan debounce (300-500ms)
-   3. Pagination, jika data lebih dari 10 item
+- Terapkan form validation
 
-   f. Create article
+#### d. Edit Category
 
-   1. Terapkan form validation
-   2. Buat tampilan preview sebelum submit (fetch api).
+- Terapkan form validation
 
-   g. Edit artikel
+#### e. List Artikel
 
-   1. Terapkan form validation
-   2. Buat tampilan preview sebelum submit (fetch api).
+- Filter artikel berdasarkan kategori
+- Searching artikel dengan debounce (300–500ms)
+- Pagination jika data lebih dari 10 item
 
-3. Teknologi
-   - NextJS
-   - TypeScript
-   - Redux Toolkit
-   - TailwindCSS
-   - Axios
-   - React Router Dom
-   - React Hook Form
-   - React Icons
-   - React Query
-   - React Toastify
-   - React Spinners
-   - React Paginate
-   - React Debounce Input
-   - Zod + React Hook Form Resolvers
-   - Version Control: Git
+#### f. Create Article
+
+- Terapkan form validation
+- Buat tampilan preview sebelum submit (fetch API)
+
+#### g. Edit Article
+
+- Terapkan form validation
+- Buat tampilan preview sebelum submit (fetch API)
+
+---
+
+### 3. Teknologi
+
+- Next.js
+- TypeScript
+- Redux Toolkit
+- TailwindCSS
+- Axios
+- React Router DOM
+- React Hook Form
+- React Icons
+- React Query
+- React Toastify
+- React Spinners
+- React Paginate
+- React Debounce Input
+- Zod + React Hook Form Resolvers
+- Version Control: Git
