@@ -12,6 +12,11 @@ interface ArticleCardProps {
 }
 
 export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
+  // Get category name from either category_name or category.name
+  const categoryName = article.category_name || 
+                      (article.category && article.category.name) || 
+                      "Uncategorized";
+
   return (
     <Card className="overflow-hidden h-full flex flex-col transition-all duration-200 hover:shadow-md">
       <Link to={`/articles/${article.id}`} className="group">
@@ -32,7 +37,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
               variant="outline"
               className="bg-primary/10 hover:bg-primary/20 whitespace-nowrap ml-auto"
             >
-              {article.category_name || "Uncategorized"}
+              {categoryName}
             </Badge>
           </div>
           <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">

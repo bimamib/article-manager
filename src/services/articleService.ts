@@ -14,14 +14,14 @@ const getLocalArticles = () => {
     const savedArticles = localStorage.getItem('localArticles');
     if (savedArticles) {
       const parsedData = JSON.parse(savedArticles);
-      console.log("Berhasil mengambil artikel dari localStorage:", parsedData);
+      console.log("Article data loaded from localStorage:", parsedData);
       return parsedData;
     } else {
-      console.log("Tidak ada artikel di localStorage, menggunakan data dummy");
+      console.log("No articles in localStorage, using dummy data");
       return [...dummyData.articles];
     }
   } catch (error) {
-    console.error("Error saat membaca artikel lokal:", error);
+    console.error("Error reading local articles:", error);
     return [...dummyData.articles];
   }
 };
@@ -30,26 +30,47 @@ const getLocalArticles = () => {
 const saveLocalArticles = (articles: Article[]) => {
   try {
     localStorage.setItem('localArticles', JSON.stringify(articles));
-    console.log("Artikel berhasil disimpan ke localStorage:", articles);
+    console.log("Articles successfully saved to localStorage:", articles);
   } catch (error) {
-    console.error("Error saat menyimpan artikel lokal:", error);
+    console.error("Error saving local articles:", error);
   }
 };
 
 // Initial state loaded from localStorage
 let localArticles = getLocalArticles();
 
+// Process articles to ensure they have category_name
+const processArticles = (articles: Article[]) => {
+  return articles.map(article => {
+    // If article has category object but not category_name
+    if (article.category && article.category.name && !article.category_name) {
+      return {
+        ...article,
+        category_name: article.category.name
+      };
+    }
+    // If no category_name and no category object
+    if (!article.category_name && !article.category) {
+      return {
+        ...article,
+        category_name: `Category ${article.category_id}`
+      };
+    }
+    return article;
+  });
+};
+
 export const articleService = {
   async getArticles(page: number = 1, search: string = "", categoryId: string = "", forceRefresh: boolean = false): Promise<PaginatedResponse<Article>> {
     // Always refresh from localStorage first to get the latest data
     localArticles = getLocalArticles();
-    console.log("getArticles - Artikel dari localStorage:", localArticles);
-    console.log("getArticles - Parameter pencarian:", { page, search, categoryId, forceRefresh });
+    console.log("getArticles - Articles from localStorage:", localArticles);
+    console.log("getArticles - Search parameters:", { page, search, categoryId, forceRefresh });
     
     try {
       if (!forceRefresh && localArticles && localArticles.length > 0) {
         // Use local storage data directly if not forcing refresh
-        console.log("getArticles - Menggunakan data lokal tanpa refresh API");
+        console.log("getArticles - Using local data without API refresh");
       } else {
         const params = new URLSearchParams();
         params.append("page", page.toString());
@@ -61,14 +82,16 @@ export const articleService = {
         
         // If API is successful, update local articles
         if (apiArticles && apiArticles.data && apiArticles.data.length > 0) {
-          console.log("getArticles - Mengupdate artikel lokal dari API");
-          localArticles = apiArticles.data;
+          console.log("getArticles - Updating local articles from API");
+          // Process articles to ensure they have category_name
+          const processedArticles = processArticles(apiArticles.data);
+          localArticles = processedArticles;
           saveLocalArticles(localArticles);
         }
       }
       
       // Fallback with local storage data
-      let filteredArticles = localArticles;
+      let filteredArticles = processArticles(localArticles);
       
       if (categoryId) {
         filteredArticles = filteredArticles.filter(article => article.category_id === categoryId);
@@ -81,7 +104,7 @@ export const articleService = {
         });
       }
       
-      console.log("getArticles - Artikel setelah filter:", filteredArticles);
+      console.log("getArticles - Articles after filtering:", filteredArticles);
       
       // Mock pagination
       const itemsPerPage = 9;
@@ -99,10 +122,10 @@ export const articleService = {
         }
       };
     } catch (error) {
-      console.error("Error mengambil artikel:", error);
+      console.error("Error fetching articles:", error);
       
       // Filter local articles as fallback
-      let filteredArticles = localArticles;
+      let filteredArticles = processArticles(localArticles);
       
       if (categoryId) {
         filteredArticles = filteredArticles.filter(article => article.category_id === categoryId);
@@ -115,7 +138,7 @@ export const articleService = {
         });
       }
       
-      console.log("getArticles - Error, menggunakan data lokal:", filteredArticles);
+      console.log("getArticles - Error, using local data:", filteredArticles);
       
       // Mock pagination
       const itemsPerPage = 9;
