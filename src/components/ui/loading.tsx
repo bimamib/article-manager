@@ -25,11 +25,11 @@ export const Loading: React.FC<LoadingProps> = ({
   const loader = (
     <div className={cn(
       "flex flex-col items-center justify-center gap-2",
-      fullScreen ? "h-screen" : "py-8",
+      fullScreen ? "h-screen" : "py-12", // Increased padding for more visibility
       className
     )}>
       <Loader className={cn(sizeMap[size], "animate-spin text-primary")} />
-      {text && <p className="text-sm text-muted-foreground">{text}</p>}
+      {text && <p className="text-sm font-medium text-muted-foreground">{text}</p>}
     </div>
   );
 
@@ -41,5 +41,9 @@ export const Loading: React.FC<LoadingProps> = ({
     );
   }
 
-  return loader;
+  return (
+    <div className="border rounded-md p-8 w-full bg-card/50 backdrop-blur-sm">
+      {loader}
+    </div>
+  );
 };

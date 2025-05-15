@@ -64,7 +64,7 @@ const processArticles = (articles: Article[]) => {
 };
 
 export const articleService = {
-  async getArticles(page: number = 1, search: string = "", categoryId: string = "", forceRefresh: boolean = false): Promise<PaginatedResponse<Article>> {
+  async getArticles(page: number = 1, search: string = "", categoryId: string = "", forceRefresh: boolean = true): Promise<PaginatedResponse<Article>> {
     // Always refresh from localStorage first to get the latest data
     localArticles = getLocalArticles();
     console.log("getArticles - Articles from localStorage:", localArticles);
@@ -81,8 +81,21 @@ export const articleService = {
         
         try {
           console.log(`API call to /articles?${params.toString()}`);
-          const response = await api.get<ApiResponse<PaginatedResponse<Article>>>(`/articles?${params.toString()}`);
-          console.log("API Response:", response.data);
+          
+          // Add a debug log with full URL
+          console.log(`Full API URL: ${api.defaults.baseURL}/articles?${params.toString()}`);
+          
+          // Set a timeout for API calls
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error('API request timed out')), 5000);
+          });
+          
+          const apiPromise = api.get<ApiResponse<PaginatedResponse<Article>>>(`/articles?${params.toString()}`);
+          
+          // Race between API call and timeout
+          const response = await Promise.race([apiPromise, timeoutPromise]) as typeof apiPromise;
+          
+          console.log("API Response received:", response.data);
           
           const apiArticles = response.data.data;
           

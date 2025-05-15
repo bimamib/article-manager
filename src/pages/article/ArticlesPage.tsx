@@ -51,6 +51,7 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [error, setError] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const isDesktop = useIsDesktop();
   const { toast } = useToast();
@@ -65,6 +66,8 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
   const fetchArticles = async (forceRefresh: boolean = true) => {
     console.log("ArticlesPage - Setting isLoading to true");
     setIsLoading(true); // Ensure loading state is set to true
+    setError(null); // Clear any previous errors
+    
     try {
       console.log("ArticlesPage - Fetching articles with forceRefresh:", forceRefresh);
       
@@ -89,6 +92,7 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
       } else {
         console.error("Invalid article data format:", response.data);
         setArticles([]);
+        setError("Invalid article data format");
         toast({
           title: "Warning",
           description: "Invalid article data format",
@@ -106,9 +110,10 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
       );
     } catch (error) {
       console.error("Error fetching articles:", error);
+      setError("Failed to fetch articles");
       toast({
         title: "Error",
-        description: "Failed to fetch articles",
+        description: "Failed to fetch articles. Please try refreshing.",
         variant: "destructive",
       });
       // Set empty state on error
@@ -121,7 +126,9 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
       });
     } finally {
       console.log("ArticlesPage - Setting isLoading to false");
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500); // Small delay to ensure loading state is visible
       setRefreshing(false);
     }
   };
@@ -196,11 +203,11 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
             <Button
               variant="outline"
               onClick={handleRefresh}
-              disabled={refreshing}
+              disabled={refreshing || isLoading}
               className="transition-all duration-300 hover:scale-105"
             >
               <RefreshCw
-                className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+                className={`mr-2 h-4 w-4 ${refreshing || isLoading ? "animate-spin" : ""}`}
               />
               {refreshing ? "Loading..." : "Refresh"}
             </Button>
@@ -234,6 +241,20 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
               )}
             </div>
 
+            {error && (
+              <div className="bg-destructive/15 text-destructive rounded-md p-4 mb-6">
+                <p>{error}</p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => fetchArticles(true)} 
+                  className="mt-2"
+                >
+                  Try Again
+                </Button>
+              </div>
+            )}
+
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -243,10 +264,12 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
               <ArticleGrid articles={articles} isLoading={isLoading} />
             </motion.div>
 
-            <PaginationControls
-              pagination={pagination}
-              onPageChange={handlePageChange}
-            />
+            {!isLoading && articles.length > 0 && (
+              <PaginationControls
+                pagination={pagination}
+                onPageChange={handlePageChange}
+              />
+            )}
           </div>
         </div>
       </motion.div>
