@@ -1,73 +1,75 @@
-# Welcome to your Lovable project
+## Home Test Frontend Web Developer
 
-## Project info
+Website manajemen artikel dengan role User dan Admin.
 
-**URL**: https://lovable.dev/projects/f224bc43-4bc2-4137-ab35-024d43e42ac2
+1. User
+   a. Authentication
 
-## How can I edit this code?
+   1. Login dengan validasi form
+   2. Register dengan validasi form.
+   3. Setelah login/register sukses, redirect ke halaman list artikel.
 
-There are several ways of editing your application.
+   b. List Artikel
 
-**Use Lovable**
+   1. Filter artikel berdasarkan kategori.
+   2. Searching artikel, dengan debounce (300-500ms).
+   3. Pagination, jika data lebih dari 9 item.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f224bc43-4bc2-4137-ab35-024d43e42ac2) and start prompting.
+   c. Detail Artikel
 
-Changes made via Lovable will be committed automatically to this repo.
+   1. Detail artikel, tampilkan konten lengkap.
+   2. Other articles, tampilkan maksimal 3 artikel dari kategori yang sama dengan artikel yang sedang dilihat user.
 
-**Use your preferred IDE**
+2. Admin
+   a. Authentication
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+   1. Login dengan validasi form
+   2. Register dengan validasi form.
+   3. Setelah login/register sukses, redirect ke halaman list artikel.
+   4. Logout dengan redirect ke halaman login.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+   b. List Categories
 
-Follow these steps:
+   1. Searching category, dengan debounce (300-500ms)
+   2. Terapkan pagination, jika data lebih dari 10 items
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+   c. Create Category
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+   - Terapkan form validation.
 
-# Step 3: Install the necessary dependencies.
-npm i
+   d. Edit Category
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+   - Terapkan form validation.
 
-**Edit a file directly in GitHub**
+   e. List artikel
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+   1. Filter artikel berdasarkan kategori
+   2. Searching artikel, dengan debounce (300-500ms)
+   3. Pagination, jika data lebih dari 10 item
 
-**Use GitHub Codespaces**
+   f. Create article
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+   1. Terapkan form validation
+   2. Buat tampilan preview sebelum submit (fetch api).
 
-## What technologies are used for this project?
+   g. Edit artikel
 
-This project is built with:
+   1. Terapkan form validation
+   2. Buat tampilan preview sebelum submit (fetch api).
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/f224bc43-4bc2-4137-ab35-024d43e42ac2) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+3. Teknologi
+   - NextJS
+   - TypeScript
+   - Redux Toolkit
+   - TailwindCSS
+   - Axios
+   - React Router Dom
+   - React Hook Form
+   - React Icons
+   - React Query
+   - React Toastify
+   - React Spinners
+   - React Paginate
+   - React Debounce Input
+   - Zod + React Hook Form Resolvers
+   - Version Control: Git
