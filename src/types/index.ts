@@ -1,3 +1,4 @@
+
 // User types
 export interface User {
   id: string;
@@ -32,6 +33,10 @@ export interface Article {
   image: string;
   category_id: string;
   category_name?: string;
+  category?: {
+    id: string;
+    name: string;
+  };
   created_at: string;
   updated_at: string;
   excerpt?: string;
