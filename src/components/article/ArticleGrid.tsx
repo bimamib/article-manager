@@ -14,20 +14,26 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
   articles,
   isLoading,
 }) => {
+  console.log("ArticleGrid - Received articles:", articles);
+  
   if (isLoading) {
     return <Loading />;
   }
 
   // Handle the case when articles is undefined or empty
   if (!articles || articles.length === 0) {
+    console.log("ArticleGrid - No articles found");
     return <Empty message="Tidak ada artikel yang ditemukan" />;
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
-      {articles.map((article) => (
-        <ArticleCard key={article.id} article={article} />
-      ))}
+      {articles.map((article) => {
+        console.log("ArticleGrid - Rendering article:", article);
+        return (
+          <ArticleCard key={article.id} article={article} />
+        );
+      })}
     </div>
   );
 };

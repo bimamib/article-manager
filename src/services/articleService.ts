@@ -68,29 +68,39 @@ export const articleService = {
     console.log("getArticles - Search parameters:", { page, search, categoryId, forceRefresh });
     
     try {
-      if (!forceRefresh && localArticles && localArticles.length > 0) {
-        // Use local storage data directly if not forcing refresh
-        console.log("getArticles - Using local data without API refresh");
-      } else {
+      // Always try API first if forceRefresh is true
+      if (forceRefresh) {
+        console.log("getArticles - Force refreshing from API");
         const params = new URLSearchParams();
         params.append("page", page.toString());
         if (search) params.append("search", search);
         if (categoryId) params.append("category_id", categoryId);
         
-        const response = await api.get<ApiResponse<PaginatedResponse<Article>>>(`/articles?${params.toString()}`);
-        const apiArticles = response.data.data;
-        
-        // If API is successful, update local articles
-        if (apiArticles && apiArticles.data && apiArticles.data.length > 0) {
-          console.log("getArticles - Updating local articles from API");
-          // Process articles to ensure they have category_name
-          const processedArticles = processArticles(apiArticles.data);
-          localArticles = processedArticles;
-          saveLocalArticles(localArticles);
+        try {
+          const response = await api.get<ApiResponse<PaginatedResponse<Article>>>(`/articles?${params.toString()}`);
+          console.log("API Response:", response.data);
+          const apiArticles = response.data.data;
+          
+          // If API is successful, update local articles
+          if (apiArticles && apiArticles.data && apiArticles.data.length > 0) {
+            console.log("getArticles - Updating local articles from API");
+            // Process articles to ensure they have category_name
+            const processedArticles = processArticles(apiArticles.data);
+            localArticles = processedArticles;
+            saveLocalArticles(localArticles);
+            
+            // Return API data directly instead of proceeding to filtering
+            return apiArticles;
+          }
+        } catch (apiError) {
+          console.error("API error, falling back to local data:", apiError);
+          // Continue with local data if API fails
         }
+      } else {
+        console.log("getArticles - Using local data without API refresh");
       }
       
-      // Fallback with local storage data
+      // Fallback or continue with local storage data
       let filteredArticles = processArticles(localArticles);
       
       if (categoryId) {

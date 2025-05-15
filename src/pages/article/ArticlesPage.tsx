@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ArticleGrid } from "@/components/article/ArticleGrid";
@@ -64,6 +65,8 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
   const fetchArticles = async (forceRefresh: boolean = true) => {
     setIsLoading(true);
     try {
+      console.log("ArticlesPage - Fetching articles with forceRefresh:", forceRefresh);
+      
       // Convert "all" to empty string for API
       const categoryParam = selectedCategory === "all" ? "" : selectedCategory;
 
@@ -76,8 +79,11 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
           forceRefresh
         );
 
+      console.log("ArticlesPage - Articles fetched:", response);
+      
       // Ensure articles data is an array
       if (Array.isArray(response.data)) {
+        console.log("ArticlesPage - Setting articles:", response.data);
         setArticles(response.data);
       } else {
         console.error("Invalid article data format:", response.data);
@@ -120,17 +126,23 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
 
   // Fetch articles when component mounts with force refresh
   useEffect(() => {
+    console.log("ArticlesPage - Component mounted, forcing refresh");
     fetchArticles(true);
   }, []);
 
   // Re-fetch with force refresh when search or category changes
   useEffect(() => {
+    console.log("ArticlesPage - Search or category changed:", {
+      search: searchQuery,
+      category: selectedCategory
+    });
     setCurrentPage(1); // Reset page to 1 when filters change
     fetchArticles(true); // Force refresh when filters change
   }, [searchQuery, selectedCategory]);
 
   // Re-fetch when page changes
   useEffect(() => {
+    console.log("ArticlesPage - Page changed:", currentPage);
     fetchArticles(true); // Always force refresh when page changes
   }, [currentPage]);
 
