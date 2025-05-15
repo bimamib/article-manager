@@ -92,8 +92,8 @@ export const articleService = {
           
           const apiPromise = api.get<ApiResponse<PaginatedResponse<Article>>>(`/articles?${params.toString()}`);
           
-          // Race between API call and timeout
-          const response = await Promise.race([apiPromise, timeoutPromise]) as typeof apiPromise;
+          // Race between API call and timeout - properly await the result
+          const response = await Promise.race([apiPromise, timeoutPromise]);
           
           console.log("API Response received:", response.data);
           
