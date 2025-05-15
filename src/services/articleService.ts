@@ -41,9 +41,11 @@ let localArticles = getLocalArticles();
 
 // Process articles to ensure they have category_name
 const processArticles = (articles: Article[]) => {
+  console.log("Processing articles to ensure they have category_name", articles);
   return articles.map(article => {
-    // If article has category object but not category_name
+    // If article has category object with name but not category_name
     if (article.category && article.category.name && !article.category_name) {
+      console.log(`Article ${article.id} has category object but no category_name, adding it`);
       return {
         ...article,
         category_name: article.category.name
@@ -51,6 +53,7 @@ const processArticles = (articles: Article[]) => {
     }
     // If no category_name and no category object
     if (!article.category_name && !article.category) {
+      console.log(`Article ${article.id} has no category_name and no category object, using fallback`);
       return {
         ...article,
         category_name: `Category ${article.category_id}`
@@ -77,20 +80,31 @@ export const articleService = {
         if (categoryId) params.append("category_id", categoryId);
         
         try {
+          console.log(`API call to /articles?${params.toString()}`);
           const response = await api.get<ApiResponse<PaginatedResponse<Article>>>(`/articles?${params.toString()}`);
           console.log("API Response:", response.data);
+          
           const apiArticles = response.data.data;
           
           // If API is successful, update local articles
-          if (apiArticles && apiArticles.data && apiArticles.data.length > 0) {
+          if (apiArticles && apiArticles.data) {
             console.log("getArticles - Updating local articles from API");
-            // Process articles to ensure they have category_name
-            const processedArticles = processArticles(apiArticles.data);
-            localArticles = processedArticles;
-            saveLocalArticles(localArticles);
+            console.log("API articles data:", apiArticles.data);
             
-            // Return API data directly instead of proceeding to filtering
-            return apiArticles;
+            // Process articles to ensure they have category_name
+            if (Array.isArray(apiArticles.data)) {
+              const processedArticles = processArticles(apiArticles.data);
+              localArticles = processedArticles;
+              saveLocalArticles(localArticles);
+              
+              // Return API data directly
+              return apiArticles;
+            } else {
+              console.error("API returned non-array data for articles:", apiArticles.data);
+              throw new Error("Invalid API response format");
+            }
+          } else {
+            console.log("No articles data in API response or empty array");
           }
         } catch (apiError) {
           console.error("API error, falling back to local data:", apiError);

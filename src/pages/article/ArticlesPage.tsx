@@ -63,7 +63,8 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
   };
 
   const fetchArticles = async (forceRefresh: boolean = true) => {
-    setIsLoading(true);
+    console.log("ArticlesPage - Setting isLoading to true");
+    setIsLoading(true); // Ensure loading state is set to true
     try {
       console.log("ArticlesPage - Fetching articles with forceRefresh:", forceRefresh);
       
@@ -119,6 +120,7 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ isExplore = false }) => {
         per_page: 9,
       });
     } finally {
+      console.log("ArticlesPage - Setting isLoading to false");
       setIsLoading(false);
       setRefreshing(false);
     }

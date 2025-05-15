@@ -12,7 +12,7 @@ interface LoadingProps {
 
 export const Loading: React.FC<LoadingProps> = ({
   size = "md",
-  text = "Memuat...",
+  text = "Loading...",
   className,
   fullScreen = false,
 }) => {

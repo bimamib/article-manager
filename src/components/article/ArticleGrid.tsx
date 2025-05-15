@@ -15,15 +15,17 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
   isLoading,
 }) => {
   console.log("ArticleGrid - Received articles:", articles);
+  console.log("ArticleGrid - isLoading:", isLoading);
   
   if (isLoading) {
-    return <Loading />;
+    console.log("ArticleGrid - Showing loading state");
+    return <Loading text="Loading articles..." />;
   }
 
   // Handle the case when articles is undefined or empty
   if (!articles || articles.length === 0) {
     console.log("ArticleGrid - No articles found");
-    return <Empty message="Tidak ada artikel yang ditemukan" />;
+    return <Empty message="No articles found" />;
   }
 
   return (
