@@ -5,6 +5,7 @@ import { Loading } from "@/components/ui/loading";
 import { Empty } from "@/components/ui/empty";
 import { Article } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
 
 interface ArticleGridProps {
   articles: Article[];
@@ -52,17 +53,37 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({
 
 const ArticleGridSkeleton = () => {
   return (
-    <div className="border rounded-md overflow-hidden h-full flex flex-col">
-      <Skeleton className="w-full h-48" />
+    <Card className="overflow-hidden h-full flex flex-col">
+      {/* Image placeholder */}
+      <div className="aspect-video w-full">
+        <Skeleton className="w-full h-full" />
+      </div>
+      
+      {/* Content area */}
       <div className="p-4">
-        <Skeleton className="h-4 w-full mb-2" />
-        <Skeleton className="h-4 w-3/4 mb-4" />
-        <Skeleton className="h-24 w-full mb-2" />
-        <div className="flex justify-between mt-4">
-          <Skeleton className="h-3 w-16" />
-          <Skeleton className="h-3 w-16" />
+        {/* Date and category row */}
+        <div className="flex flex-row items-center justify-between gap-2 mb-2">
+          <Skeleton className="h-3 w-24" /> {/* Date */}
+          <Skeleton className="h-5 w-20 rounded-full" /> {/* Category badge */}
+        </div>
+        
+        {/* Title */}
+        <Skeleton className="h-6 w-full mb-2" />
+        <Skeleton className="h-6 w-4/5 mb-4" />
+        
+        {/* Content excerpt */}
+        <Skeleton className="h-4 w-full mb-1" />
+        <Skeleton className="h-4 w-full mb-1" />
+        <Skeleton className="h-4 w-4/5 mb-4" />
+      </div>
+      
+      {/* Footer */}
+      <div className="px-4 pb-4 mt-auto">
+        <div className="flex justify-between w-full">
+          <Skeleton className="h-3 w-16" /> {/* Author */}
+          <Skeleton className="h-3 w-16" /> {/* Read more */}
         </div>
       </div>
-    </div>
+    </Card>
   );
 };
