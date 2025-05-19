@@ -1,6 +1,10 @@
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -39,7 +43,7 @@ const queryClient = new QueryClient({
 // AnimatedRoutes component for page transitions
 const AnimatedRoutes = () => {
   const location = useLocation();
-  
+
   return (
     <AnimatePresence mode="wait">
       <Routes key={location.pathname} location={location}>
@@ -47,83 +51,76 @@ const AnimatedRoutes = () => {
         <Route path="/" element={<Index />} />
         <Route path="/auth/login" element={<LoginPage />} />
         <Route path="/auth/register" element={<RegisterPage />} />
-        
+
         {/* Protected User Routes */}
-        <Route 
-          path="/articles" 
+        <Route
+          path="/articles"
           element={
             <RequireAuth>
               <ArticlesPage />
             </RequireAuth>
-          } 
+          }
         />
-        <Route 
-          path="/articles/explore" 
+        <Route
+          path="/articles/explore"
           element={
             <RequireAuth>
               <ArticlesPage isExplore={true} />
             </RequireAuth>
-          } 
+          }
         />
-        <Route 
-          path="/articles/:id" 
-          element={
-            <RequireAuth>
-              <ArticleDetailPage />
-            </RequireAuth>
-          } 
-        />
-        
+        <Route path="/articles/:id" element={<ArticleDetailPage />} />
+
         {/* Protected Admin Routes */}
-        <Route 
-          path="/admin/categories" 
+        <Route
+          path="/admin/categories"
           element={
             <RequireAuth requireAdmin>
               <CategoryListPage />
             </RequireAuth>
-          } 
+          }
         />
-        <Route 
-          path="/admin/categories/create" 
+        <Route
+          path="/admin/categories/create"
           element={
             <RequireAuth requireAdmin>
               <CategoryFormPage />
             </RequireAuth>
-          } 
+          }
         />
-        <Route 
-          path="/admin/categories/edit/:id" 
+        <Route
+          path="/admin/categories/edit/:id"
           element={
             <RequireAuth requireAdmin>
               <CategoryFormPage />
             </RequireAuth>
-          } 
+          }
         />
-        <Route 
-          path="/admin/articles" 
+        <Route
+          path="/admin/articles"
           element={
             <RequireAuth requireAdmin>
               <ArticleListPage />
             </RequireAuth>
-          } 
+          }
         />
-        <Route 
-          path="/admin/articles/create" 
+        <Route
+          path="/admin/articles/create"
           element={
             <RequireAuth requireAdmin>
               <ArticleFormPage />
             </RequireAuth>
-          } 
+          }
         />
-        <Route 
-          path="/admin/articles/edit/:id" 
+        <Route
+          path="/admin/articles/edit/:id"
           element={
             <RequireAuth requireAdmin>
               <ArticleFormPage />
             </RequireAuth>
-          } 
+          }
         />
-        
+
         {/* Not Found Route */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
@@ -136,11 +133,13 @@ const App = () => {
   useEffect(() => {
     const root = window.document.documentElement;
     const theme = localStorage.getItem("theme") || "system";
-    
+
     if (theme === "dark") {
       root.classList.add("dark");
     } else if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const systemTheme = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
       if (systemTheme) {
         root.classList.add("dark");
       }
